@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_freight_port,access_freight_port,model_freight_port,base.group_user,1,1,1,1
+access_freight_container,access_freight_container,model_freight_container,base.group_user,1,1,1,1
+access_freight_price,access_freight_price,model_freight_price,base.group_user,1,1,1,1
+access_freight_routes,access_freight_routes,model_freight_routes,base.group_user,1,1,1,1
+access_freight_service,access_freight_service,model_freight_service,base.group_user,1,1,1,1
+access_freight_service_line,access_freight_service_line,model_freight_service_line,base.group_user,1,1,1,1
