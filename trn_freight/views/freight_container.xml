@@ -14,24 +14,15 @@
                     <group>
                         <group>
                             <field name="name"/>
-                            <field name="code"/>
-                            <label for="size" string="Size"/>
-                            <div class="o_row">
-                                <field name="size"/>
-                                <field name="size_unit" nolabel="1"/>
-                            </div>
+                            <field name="size"/>
+                            <field name="weight"/>
+                            <field name="volume"/>
                         </group>
                         <group>
-                            <label for="weight" string="Weight"/>
-                            <div class="o_row">
-                                <field name="weight"/>
-                                <field name="weight_unit" nolabel="1"/>
-                            </div>
-                            <label for="volume" string="Volume"/>
-                            <div class="o_row">
-                                <field name="volume"/>
-                                <field name="volume_unit" nolabel="1"/>
-                            </div>
+                            <field name="code"/>
+                            <field name="size_unit"/>
+                            <field name="weight_unit"/>
+                            <field name="volume_unit"/>
                             <field name="active" widget="boolean_toggle"/>
                             <field name="company_id" groups="base.group_multi_company"/>
                         </group>
