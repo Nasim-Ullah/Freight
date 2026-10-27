@@ -3,3 +3,4 @@ from .import freight_port
 from .import freight_price
 from .import freight_routes
 from .import freight_service
+from .import freight_shipping
