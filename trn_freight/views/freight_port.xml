@@ -40,16 +40,39 @@
         </field>
     </record>
 
+    <!--Search view-->
+    <record id="view_freight_port_search" model="ir.ui.view">
+        <field name="name">freight.port.search</field>
+        <field name="model">freight.port</field>
+        <field name="arch" type="xml">
+            <search string="Search Ports">
+                <field name="name" string="Port Name" filter_domain="['|', ('name', 'ilike', self), ('code', 'ilike', self)]"/>
+                <field name="country_id"/>
+                <field name="state_id"/>
+
+                <separator/>
+                <filter string="Land Ports" name="filter_land" domain="[('is_land', '=', True)]"/>
+                <filter string="Air Ports" name="filter_air" domain="[('is_air', '=', True)]"/>
+                <filter string="Water Ports" name="filter_water" domain="[('is_water', '=', True)]"/>
+
+                <separator/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
     <!-- Action -->
     <record id="action_freight_port" model="ir.actions.act_window">
         <field name="name">Freight Port</field>
         <field name="res_model">freight.port</field>
         <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_freight_port_search"/>
     </record>
 
     <!-- Menu -->
     <menuitem id="menu_freight_root" name="Freight" sequence="10"/>
     <menuitem id="menu_freight_config" name="Configuration" parent="menu_freight_root" sequence="100"/>
-    <menuitem id="menu_freight_port" name="Port" parent="menu_freight_config" action="action_freight_port" sequence="10"/>
+    <menuitem id="menu_freight_port" name="Port" parent="menu_freight_config" action="action_freight_port"
+              sequence="10"/>
 
 </odoo>

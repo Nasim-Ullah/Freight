@@ -7,7 +7,7 @@
         <field name="arch" type="xml">
             <form string="Containers">
                 <sheet>
-                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" invisible="active"/>
+                    <!--<widget name="web_ribbon" title="Archived" bg_color="bg-danger" invisible="active"/>-->
                     <header>
                         <field name="state" widget="statusbar" stausbar_visible="available,reserved"/>
                     </header>
@@ -44,12 +44,32 @@
         </field>
     </record>
 
+    <!--search view-->
+    <record id="view_freight_container_search" model="ir.ui.view">
+        <field name="name">freight.container.search</field>
+        <field name="model">freight.container</field>
+        <field name="arch" type="xml">
+            <search string="Search Containers">
+                <field name="name" string="Container Name" filter_domain="['|'('name', 'ilike', self), ('code', 'ilike', self)]"/>
+                <field name="code"/>
+
+                <separator/>
+                <filter string="Available" name="filter_available" domain="[('state', '=', 'available')]"/>
+                <filter string="Reserved" name="filter_reserved" domain="[('state', '=', 'reserved')]"/>
+                <separator/>
+
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
 
     <!-- Action -->
     <record id="action_freight_container" model="ir.actions.act_window">
         <field name="name">Freight Container</field>
         <field name="res_model">freight.container</field>
         <field name="view_mode">list,form</field>
+        <!--<field name="search_view_id" ref="view_freight_container_search"/>-->
     </record>
 
     <!-- menu -->

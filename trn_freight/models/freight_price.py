@@ -1,5 +1,3 @@
-from unicodedata import digit
-
 from odoo import models, fields
 
 class FreightPrice(models.Model):

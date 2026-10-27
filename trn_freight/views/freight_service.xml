@@ -43,6 +43,20 @@
         </field>
     </record>
 
+    <!--Search View-->
+    <record id="view_freight_service_search" model="ir.ui.view">
+        <field name="name">freight.service.search</field>
+        <field name="model">freight.service</field>
+        <field name="arch" type="xml">
+            <search string="Search Services">
+                <field name="name" string="Service Name"/>
+
+                <separator/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </search>
+        </field>
+    </record>
+
     <!--Action-->
     <record id="action_freight_service" model="ir.actions.act_window">
         <field name="name">Freight Services</field>

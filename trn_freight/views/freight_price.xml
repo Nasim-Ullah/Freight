@@ -37,6 +37,20 @@
         </field>
     </record>
 
+    <!--Search view-->
+    <record id="view_freight_price_search" model="ir.ui.view">
+        <field name="name">freight.price.search</field>
+        <field name="model">freight.price</field>
+        <field name="arch" type="xml">
+            <search string="Search Prices">
+                <field name="name" string="Price Rule"/>
+
+                <separator/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </search>
+        </field>
+    </record>
+
     <!--Action-->
     <record id="action_freight_price" model="ir.actions.act_window">
         <field name="name">Freight price</field>

@@ -11,13 +11,11 @@
                     <group>
                         <group>
                             <field name="name"/>
-                            <field name="active" widget="boolean_toggle"/>
-                        </group>
-                        <group>
                             <field name="land_price"/>
                             <field name="air_price"/>
                             <field name="water_price"/>
                             <field name="company_id" groups="base.group_multi_company"/>
+                            <!--<field name="active" widget="boolean_toggle"/>-->
                         </group>
                     </group>
                 </sheet>
@@ -32,11 +30,24 @@
         <field name="arch" type="xml">
             <list string="Routes">
                 <field name="name"/>
-                <field name="land_price"/>
-                <field name="air_price"/>
-                <field name="water_price"/>
-                <field name="active"/>
             </list>
+        </field>
+    </record>
+
+    <!--Search View-->
+    <record id="view_freight_routes_search" model="ir.ui.view">
+        <field name="name">freight.routes.search</field>
+        <field name="model">freight.routes</field>
+        <field name="arch" type="xml">
+            <search string="Search Routes">
+                <field name="name" string="Route Name"/>
+
+                <separator/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+
+                <separator/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </search>
         </field>
     </record>
 
