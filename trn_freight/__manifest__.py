@@ -9,7 +9,7 @@
     System for managing global and domestic freight operations:
     """,
     'author': 'Nasim Ullah',
-    'depends': [],
+    'depends': ['base', 'mail', 'uom'],
     'data': [
         'security/ir.model.access.csv',
         'views/freight_port.xml',
