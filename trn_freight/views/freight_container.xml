@@ -47,7 +47,7 @@
 
     <!-- Action -->
     <record id="action_freight_container" model="ir.actions.act_window">
-        <field name="name">Containers</field>
+        <field name="name">Freight Container</field>
         <field name="res_model">freight.container</field>
         <field name="view_mode">list,form</field>
     </record>

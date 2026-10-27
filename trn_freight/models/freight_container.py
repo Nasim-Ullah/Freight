@@ -13,6 +13,6 @@ class FreightContainer(models.Model):
     weight_unit = fields.Selection([('kg','kilograms(KG)'),('lbs', 'Pounds(LBS)')], string='Weight UOM', default='kg')
     volume = fields.Float(string='Volume', digits=(6,2))
     volume_unit = fields.Selection([('cbm','Cubic Meters(CBM)'), ('cbft','Cubic Feet(CBFT)')], string='Volume UOM', default='cbm')
-    state = fields.Selection([('available', 'Available'), ('reserved', 'Reserved')], string='status', default='available', tracking=True, required=True)
+    state = fields.Selection([('available', 'Available'), ('reserved', 'Reserved')], string='status', default='available', required=True)
     active= fields.Boolean(string='Active', default=True)
     company_id = fields.Many2one('res.company', string='Company', default=lambda self:self.env.company)

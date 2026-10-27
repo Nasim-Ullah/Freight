@@ -39,7 +39,7 @@
 
     <!--Action-->
     <record id="action_freight_price" model="ir.actions.act_window">
-        <field name="name">Pricing</field>
+        <field name="name">Freight price</field>
         <field name="res_model">freight.price</field>
         <field name="view_mode">list,form</field>
     </record>
