@@ -5,3 +5,8 @@ access_freight_price,access_freight_price,model_freight_price,base.group_user,1,
 access_freight_routes,access_freight_routes,model_freight_routes,base.group_user,1,1,1,1
 access_freight_service,access_freight_service,model_freight_service,base.group_user,1,1,1,1
 access_freight_service_line,access_freight_service_line,model_freight_service_line,base.group_user,1,1,1,1
+access_freight_shipping,access_freight_shipping,model_freight_shipping,base.group_user,1,1,1,1
+access_freight_cargo_line,access_freight_cargo_line,model_freight_cargo_line,base.group_user,1,1,1,1
+access_freight_route_line,access_freight_route_line,model_freight_route_line,base.group_user,1,1,1,1
+access_freight_order_service,access_freight_order_service,model_freight_order_service,base.group_user,1,1,1,1
+access_freight_track,access_freight_track,model_freight_track,base.group_user,1,1,1,1

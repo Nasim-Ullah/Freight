@@ -18,5 +18,5 @@ class FreightContainer(models.Model):
     volume_unit = fields.Many2one('uom.uom', string='Volume UOM')
 
     active = fields.Boolean(string='Active', default=True)
-    state = fields.Selection([('available', 'Available'), ('reserved', 'Reserved')], string='status', default='available', tracking=True, required=True)
+    state = fields.Selection([('available', 'Available'), ('reserved', 'Reserved')], string='status', default='available', required=True)
     company_id = fields.Many2one('res.company', string='Company', default=lambda self:self.env.company)

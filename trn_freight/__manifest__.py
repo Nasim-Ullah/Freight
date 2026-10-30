@@ -17,6 +17,8 @@
         'views/freight_price.xml',
         'views/freight_routes.xml',
         'views/freight_service.xml',
+        'views/freight_shipping.xml',
+        'views/freight_sequence.xml',
     ],
     'images':['static/description/icon.png'],
     'application':True,
