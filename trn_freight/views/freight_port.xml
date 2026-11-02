@@ -70,8 +70,8 @@
     </record>
 
     <!-- Menu -->
-    <menuitem id="menu_freight_root" name="Freight" sequence="10"/>
-    <menuitem id="menu_freight_config" name="Configuration" parent="menu_freight_root" sequence="100"/>
+    <menuitem id="menu_freight_root" name="Freight" sequence="10" groups="trn_freight.group_freight_user"/>
+    <menuitem id="menu_freight_config" name="Configuration" parent="menu_freight_root" sequence="100" groups="trn_freight.group_freight_manager"/>
     <menuitem id="menu_freight_port" name="Port" parent="menu_freight_config" action="action_freight_port"
               sequence="10"/>
 

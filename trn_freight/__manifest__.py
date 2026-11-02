@@ -1,6 +1,7 @@
 {
     'name': 'Freight Management System',
-    'version': '19.0.1.0.0',
+    # 'version': '19.0.1.0.3',
+    'version': '19.0.1.0.4',
     'category': 'Logistics and Supply Chain',
     'summary': 'Manage Shippers,Consignee,Agents,Import/Export',
     'description': """
@@ -11,6 +12,7 @@
     'author': 'Nasim Ullah',
     'depends': ['base', 'mail', 'uom'],
     'data': [
+        'security/freight_security.xml',
         'security/ir.model.access.csv',
         'views/freight_port.xml',
         'views/freight_container.xml',

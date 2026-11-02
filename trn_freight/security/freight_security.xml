@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- App Category: Freight -->
+    <record id="module_category_freight" model="ir.module.category">
+        <field name="name">Freight</field>
+        <field name="description">Freight Management System</field>
+        <field name="sequence">25</field>
+    </record>
+
+    <!-- Privilege for Odoo 19 user group selector -->
+    <record id="res_groups_privilege_freight" model="res.groups.privilege">
+        <field name="name">Freight</field>
+        <field name="sequence">10</field>
+        <field name="category_id" ref="module_category_freight"/>
+    </record>
+
+    <!-- Normal Internal User Group -->
+    <record id="group_freight_user" model="res.groups">
+        <field name="name">User</field>
+        <field name="sequence">10</field>
+        <field name="privilege_id" ref="res_groups_privilege_freight"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        <field name="comment">Standard user who can view and process day-to-day freight operations.</field>
+    </record>
+
+    <!-- Freight Manager Group -->
+    <record id="group_freight_manager" model="res.groups">
+        <field name="name">Freight Manager</field>
+        <field name="sequence">20</field>
+        <field name="privilege_id" ref="res_groups_privilege_freight"/>
+        <field name="implied_ids" eval="[(4, ref('group_freight_user'))]"/>
+        <field name="user_ids" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        <field name="comment">Administrator with full control over all freight operations, master data, configuration, and security.</field>
+    </record>
+
+    <!-- ======================================================== -->
+    <!-- Multi-Company Record Rules                               -->
+    <!-- ======================================================== -->
+
+    <!-- Shipping Order -->
+    <record id="freight_shipping_comp_rule" model="ir.rule">
+        <field name="name">Freight Shipping Multi-Company</field>
+        <field name="model_id" ref="model_freight_shipping"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <!-- Cargo Line -->
+    <record id="freight_cargo_line_comp_rule" model="ir.rule">
+        <field name="name">Freight Cargo Line Multi-Company</field>
+        <field name="model_id" ref="model_freight_cargo_line"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <!-- Route Line -->
+    <record id="freight_route_line_comp_rule" model="ir.rule">
+        <field name="name">Freight Route Line Multi-Company</field>
+        <field name="model_id" ref="model_freight_route_line"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <!-- Order Service Line -->
+    <record id="freight_order_service_comp_rule" model="ir.rule">
+        <field name="name">Freight Order Service Multi-Company</field>
+        <field name="model_id" ref="model_freight_order_service"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <!-- Tracking Line -->
+    <record id="freight_track_comp_rule" model="ir.rule">
+        <field name="name">Freight Track Multi-Company</field>
+        <field name="model_id" ref="model_freight_track"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <!-- Master Data: Ports -->
+    <record id="freight_port_comp_rule" model="ir.rule">
+        <field name="name">Freight Port Multi-Company</field>
+        <field name="model_id" ref="model_freight_port"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <!-- Master Data: Containers -->
+    <record id="freight_container_comp_rule" model="ir.rule">
+        <field name="name">Freight Container Multi-Company</field>
+        <field name="model_id" ref="model_freight_container"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <!-- Master Data: Prices -->
+    <record id="freight_price_comp_rule" model="ir.rule">
+        <field name="name">Freight Price Multi-Company</field>
+        <field name="model_id" ref="model_freight_price"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <!-- Master Data: Routes -->
+    <record id="freight_routes_comp_rule" model="ir.rule">
+        <field name="name">Freight Routes Multi-Company</field>
+        <field name="model_id" ref="model_freight_routes"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <!-- Master Data: Services -->
+    <record id="freight_service_comp_rule" model="ir.rule">
+        <field name="name">Freight Service Multi-Company</field>
+        <field name="model_id" ref="model_freight_service"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <!-- Master Data: Service Lines -->
+    <record id="freight_service_line_comp_rule" model="ir.rule">
+        <field name="name">Freight Service Line Multi-Company</field>
+        <field name="model_id" ref="model_freight_service_line"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+</odoo>

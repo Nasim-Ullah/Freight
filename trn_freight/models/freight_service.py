@@ -15,5 +15,13 @@ class FreightServiceLine(models.Model):
     _description = 'Freight Service Vendor Line'
 
     service_id = fields.Many2one('freight.service', string='Service Reference', ondelete='cascade')
+    company_id = fields.Many2one(
+        'res.company',
+        string='Company',
+        related='service_id.company_id',
+        store=True,
+        readonly=True,
+        index=True,
+    )
     vendor_id = fields.Many2one('res.partner', string='Vendor', required=True)
     sale_price = fields.Float(string='Sale Price', digits=(6,2))

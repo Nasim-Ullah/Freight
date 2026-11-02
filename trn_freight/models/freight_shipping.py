@@ -1,5 +1,6 @@
 from odoo import models, fields, api
-from odoo.exceptions import ValidationError
+# from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 
 
 class FreightShipping(models.Model):
@@ -62,20 +63,33 @@ class FreightShipping(models.Model):
             record.state = 'submitted'
 
     def action_confirm(self):
+        # for record in self:
+        #     record.state = 'confirmed'
         for record in self:
             record.state = 'confirmed'
+            containers = record.cargo_line_ids.mapped('container_id')
+            if containers:
+                containers.write({'state': 'reserved'})
 
     def action_invoice(self):
         for record in self:
             record.state = 'invoiced'
 
     def action_done(self):
+        # for record in self:
+        #     record.state = 'done'
         for record in self:
             record.state = 'done'
+            containers = record.cargo_line_ids.mapped('container_id')
+            if containers:
+                containers.write({'state': 'available'})
 
     def action_cancel(self):
         for record in self:
             record.state = 'cancelled'
+            containers = record.cargo_line_ids.mapped('container_id')
+            if containers:
+                containers.write({'state': 'available'})
 
     def action_tracking(self):
         self.ensure_one()
@@ -91,6 +105,9 @@ class FreightShipping(models.Model):
     def action_draft(self):
         for record in self:
             record.state = 'draft'
+            containers = record.cargo_line_ids.mapped('container_id')
+            if containers:
+                containers.write({'state': 'available'})
 
     # Smart button counters
     clearance_count = fields.Integer(string='Clearance Count', compute='_compute_clearance_count')
@@ -154,16 +171,28 @@ class FreightShipping(models.Model):
         for vals in vals_list:
             if vals.get('name', 'New') == 'New':
                 vals['name'] = self.env['ir.sequence'].next_by_code('freight.shipping') or 'New'
-                return super().create(vals_list)
+        return super().create(vals_list)
+
+    def unlink(self):
+        for record in self:
+            if record.state in ('confirmed', 'done'):
+                raise UserError("Deleting a confirmed order is refused.")
+        return super().unlink()
 
     @api.constrains('loading_port_id', 'discharge_port_id', 'transport')
     def _check_port_transport(self):
         for order in self:
+            if not order.transport:
+                continue
             for port in [order.loading_port_id, order.discharge_port_id]:
-                if port and hasattr(port,
-                                    'transport_type') and port.transport_type and port.transport_type != order.transport:
-                    raise ValidationError(
-                        f"The port '{port.name}' does not support the selected transport type '{order.transport}'.")
+                if not port:
+                    continue
+                if order.transport == 'land' and not port.is_land:
+                    raise ValidationError(f"The port '{port.name}' does not support the selected transport type '{order.transport}'.")
+                elif order.transport == 'air' and not port.is_air:
+                    raise ValidationError(f"The port '{port.name}' does not support the selected transport type '{order.transport}'.")
+                elif order.transport == 'water' and not port.is_water:
+                    raise ValidationError(f"The port '{port.name}' does not support the selected transport type '{order.transport}'.")
 
 
 class FreightCargoLine(models.Model):
@@ -171,6 +200,14 @@ class FreightCargoLine(models.Model):
     _description = 'Freight Cargo Line'
 
     shipping_id = fields.Many2one('freight.shipping', string='Freight Order', ondelete='cascade')
+    company_id = fields.Many2one(
+        'res.company',
+        string='Company',
+        related='shipping_id.company_id',
+        store=True,
+        readonly=True,
+        index=True,
+    )
     container_id = fields.Many2one('freight.container', string='Container')
     product_id = fields.Many2one('product.product', string='Goods')
     billing_on = fields.Selection([
@@ -211,6 +248,14 @@ class FreightRouteLine(models.Model):
     _description = 'Freight Route Line'
 
     shipping_id = fields.Many2one('freight.shipping', string='Freight Order', ondelete='cascade')
+    company_id = fields.Many2one(
+        'res.company',
+        string='Company',
+        related='shipping_id.company_id',
+        store=True,
+        readonly=True,
+        index=True,
+    )
     route_id = fields.Many2one('freight.routes', string='Route', required=True)
     source_port_id = fields.Many2one('freight.port', string='Source Location')
     destination_port_id = fields.Many2one('freight.port', string='Destination Location')
@@ -233,6 +278,14 @@ class FreightOrderService(models.Model):
     _description = 'Freight Order Service Line'
 
     shipping_id = fields.Many2one('freight.shipping', string='Freight Order', ondelete='cascade')
+    company_id = fields.Many2one(
+        'res.company',
+        string='Company',
+        related='shipping_id.company_id',
+        store=True,
+        readonly=True,
+        index=True,
+    )
     service_id = fields.Many2one('freight.service', string='Service', required=True)
     vendor_id = fields.Many2one('res.partner', string='Vendor')
     quantity = fields.Float(string='Quantity', default=0.0)
@@ -250,6 +303,14 @@ class FreightTrack(models.Model):
     _description = 'Freight Tracking Line'
 
     shipping_id = fields.Many2one('freight.shipping', string='Freight Order', ondelete='cascade')
+    company_id = fields.Many2one(
+        'res.company',
+        string='Company',
+        related='shipping_id.company_id',
+        store=True,
+        readonly=True,
+        index=True,
+    )
     source_port_id = fields.Many2one('freight.port', string='Source Location', required=True)
     destination_port_id = fields.Many2one('freight.port', string='Destination Location', required=True)
     transport = fields.Selection([

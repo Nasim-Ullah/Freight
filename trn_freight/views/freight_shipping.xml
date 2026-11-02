@@ -169,5 +169,4 @@
     <!--menu-->
     <menuitem id="menu_freight_shipping" name="Shipping" parent="menu_freight_root" action="action_freight_shipping"
               sequence="10"/>
-    <menuitem id="menu_freight_config" name="Configuration" parent="menu_freight_root" sequence="100"/>
 </odoo>
