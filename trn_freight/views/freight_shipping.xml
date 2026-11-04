@@ -7,16 +7,16 @@
         <field name="arch" type="xml">
             <form string="Freight Order">
                 <header>
-                    <button name="action_custom_clearance" string="Custom Clearance" type="object"
+                    <button name="action_custom_clearance" string="Create Clearance" type="object"
                             class="btn-primary"/>
 
                     <button name="action_submit" string="Submit" type="object" invisible="state != 'draft'"
                             class="btn-primary"/>
                     <button name="action_confirm" string="Confirm" type="object" invisible="state != 'submitted'"
                             class="btn-primary"/>
-                    <button name="action_invoice" string="Invoice" type="object" invisible="state != 'confirmed'"
+                    <button name="action_create_invoice" string="Create Invoice" type="object" invisible="state != 'confirmed'"
                             class="btn-primary"/>
-                    <button name="action_tracking" string="Tracking" type="object" invisible="state != 'confirmed'"/>
+                    <button name="action_tracking" string="Track" type="object" invisible="state not in ('confirmed', 'invoiced')"/>
                     <button name="action_done" string="Done" type="object"
                             invisible="state not in ('confirmed', 'invoiced')" class="btn-primary"/>
                     <button name="action_cancel" string="Cancel" type="object" invisible="state in ('done', 'cancel')"/>
@@ -26,12 +26,12 @@
                 <sheet>
                     <!--Smart Buttons-->
                     <div class="oe_button_box" name="button_box">
-                        <button name="action_custom_clearance" type="object" class="oe_stat_button"
+                        <button name="action_view_clearance" type="object" class="oe_stat_button"
                                 icon="fa-file-text-o">
                             <field name="clearance_count" widget="statinfo" string="Clearance"/>
                         </button>
-                        <button name="action_invoice" type="object" class="oe_stat_button" icon="fa-pencil-square-o">
-                            <field name="invoice_count" widget="statinfo" string="Invoice"/>
+                        <button name="action_view_invoice" type="object" class="oe_stat_button" icon="fa-pencil-square-o">
+                            <field name="invoice_count" widget="statinfo" string="Invoices"/>
                         </button>
                     </div>
 
@@ -128,6 +128,7 @@
                         </page>
                     </notebook>
                 </sheet>
+                <chatter/>
             </form>
         </field>
     </record>

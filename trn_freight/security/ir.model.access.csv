@@ -21,3 +21,13 @@ access_freight_service_manager,freight.service.manager,model_freight_service,trn
 access_freight_service_user,freight.service.user,model_freight_service,trn_freight.group_freight_user,1,0,0,0
 access_freight_service_line_manager,freight.service.line.manager,model_freight_service_line,trn_freight.group_freight_manager,1,1,1,1
 access_freight_service_line_user,freight.service.line.user,model_freight_service_line,trn_freight.group_freight_user,1,0,0,0
+access_custom_clearance_manager,custom.clearance.manager,model_custom_clearance,trn_freight.group_freight_manager,1,1,1,1
+access_custom_clearance_user,custom.clearance.user,model_custom_clearance,trn_freight.group_freight_user,1,1,1,0
+access_custom_clearance_line_manager,custom.clearance.line.manager,model_custom_clearance_line,trn_freight.group_freight_manager,1,1,1,1
+access_custom_clearance_line_user,custom.clearance.line.user,model_custom_clearance_line,trn_freight.group_freight_user,1,1,1,1
+access_clearance_revision_manager,clearance.revision.manager,model_clearance_revision,trn_freight.group_freight_manager,1,1,1,1
+access_clearance_revision_user,clearance.revision.user,model_clearance_revision,trn_freight.group_freight_user,1,1,1,1
+access_custom_clearance_revision_wizard_manager,custom.clearance.revision.wizard.manager,model_custom_clearance_revision,trn_freight.group_freight_manager,1,1,1,1
+access_custom_clearance_revision_wizard_user,custom.clearance.revision.wizard.user,model_custom_clearance_revision,trn_freight.group_freight_user,1,1,1,1
+access_freight_order_track_manager,freight.order.track.manager,model_freight_order_track,trn_freight.group_freight_manager,1,1,1,1
+access_freight_order_track_user,freight.order.track.user,model_freight_order_track,trn_freight.group_freight_user,1,1,1,1

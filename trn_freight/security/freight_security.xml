@@ -124,4 +124,28 @@
         <field name="global" eval="True"/>
         <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
     </record>
+
+    <!-- Customs Clearance Multi-Company -->
+    <record id="custom_clearance_comp_rule" model="ir.rule">
+        <field name="name">Customs Clearance Multi-Company</field>
+        <field name="model_id" ref="model_custom_clearance"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <!-- Customs Clearance Lines Multi-Company -->
+    <record id="custom_clearance_line_comp_rule" model="ir.rule">
+        <field name="name">Customs Clearance Line Multi-Company</field>
+        <field name="model_id" ref="model_custom_clearance_line"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <!-- Customs Clearance Revision Multi-Company -->
+    <record id="clearance_revision_comp_rule" model="ir.rule">
+        <field name="name">Clearance Revision Multi-Company</field>
+        <field name="model_id" ref="model_clearance_revision"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
 </odoo>

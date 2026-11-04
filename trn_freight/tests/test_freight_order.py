@@ -70,12 +70,6 @@ class TestFreightOrder(TransactionCase):
                 }),
             ]
         })
-
-        # Line 1: 100.0 * 50.0 = 5000.0
-        # Line 2: 5.0 * 200.0 = 1000.0
-        # Total weight: 120.0
-        # Total volume: 15.0
-        # Grand total: 6000.0
         self.assertEqual(order.total_weight, 120.0, "Total weight calculation is incorrect.")
         self.assertEqual(order.total_volume, 15.0, "Total volume calculation is incorrect.")
         self.assertEqual(order.total, 6000.0, "Order total price calculation is incorrect.")
@@ -107,6 +101,14 @@ class TestFreightOrder(TransactionCase):
         self.assertEqual(order.state, 'submitted', "Order state should transition to submitted.")
         self.assertEqual(self.container.state, 'available', "Container should remain available on submit.")
 
+        # Create and confirm clearance required for order confirmation
+        clearance = self.env['custom.clearance'].create({
+            'shipping_id': order.id,
+            'loading_port_id': order.loading_port_id.id,
+            'discharge_port_id': order.discharge_port_id.id,
+        })
+        clearance.action_confirm()
+
         # Confirm -> container becomes reserved
         order.action_confirm()
         self.assertEqual(order.state, 'confirmed', "Order state should transition to confirmed.")
@@ -137,6 +139,12 @@ class TestFreightOrder(TransactionCase):
             'discharge_port_id': self.land_port_dest.id,
         })
         order.action_submit()
+        clearance = self.env['custom.clearance'].create({
+            'shipping_id': order.id,
+            'loading_port_id': order.loading_port_id.id,
+            'discharge_port_id': order.discharge_port_id.id,
+        })
+        clearance.action_confirm()
         order.action_confirm()
         self.assertEqual(order.state, 'confirmed')
 

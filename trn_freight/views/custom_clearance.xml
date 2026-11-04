@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Form View -->
+    <record id="view_custom_clearance_form" model="ir.ui.view">
+        <field name="name">custom.clearance.form</field>
+        <field name="model">custom.clearance</field>
+        <field name="arch" type="xml">
+            <form string="Customs Clearance">
+                <header>
+                    <button name="action_confirm" string="Confirm" type="object" invisible="state != 'draft'" class="btn-primary"/>
+                    <button name="action_done" string="Done" type="object" invisible="state != 'confirmed'" class="btn-primary"/>
+                    <button name="action_draft" string="Reset to Draft" type="object" invisible="state == 'draft'"/>
+                    <button name="action_open_revision_wizard" string="Create Revision" type="object" class="btn-secondary"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_revisions" type="object" class="oe_stat_button" icon="fa-history">
+                            <field name="revision_count" widget="statinfo" string="Revisions"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="shipping_id" readonly="state != 'draft'"/>
+                            <field name="date" readonly="state != 'draft'"/>
+                            <field name="agent_id" readonly="state != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="loading_port_id" readonly="state != 'draft'"/>
+                            <field name="discharge_port_id" readonly="state != 'draft'"/>
+                            <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Documents" name="document_lines">
+                            <field name="line_ids" readonly="state == 'done'">
+                                <list editable="bottom">
+                                    <field name="name"/>
+                                    <field name="file" filename="file_name"/>
+                                    <field name="file_name" column_invisible="True"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Revisions" name="revisions">
+                            <field name="revision_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="date"/>
+                                    <field name="user_id"/>
+                                    <field name="reason"/>
+                                    <field name="note"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- List View -->
+    <record id="view_custom_clearance_list" model="ir.ui.view">
+        <field name="name">custom.clearance.list</field>
+        <field name="model">custom.clearance</field>
+        <field name="arch" type="xml">
+            <list string="Customs Clearance">
+                <field name="name"/>
+                <field name="shipping_id"/>
+                <field name="date"/>
+                <field name="agent_id"/>
+                <field name="loading_port_id"/>
+                <field name="discharge_port_id"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'confirmed'" decoration-success="state == 'done'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Clearance Revision List View -->
+    <record id="view_clearance_revision_list" model="ir.ui.view">
+        <field name="name">clearance.revision.list</field>
+        <field name="model">clearance.revision</field>
+        <field name="arch" type="xml">
+            <list string="Clearance Revisions" create="false">
+                <field name="name"/>
+                <field name="clearance_id"/>
+                <field name="date"/>
+                <field name="user_id"/>
+                <field name="reason"/>
+                <field name="note"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Clearance Revision Form View -->
+    <record id="view_clearance_revision_form" model="ir.ui.view">
+        <field name="name">clearance.revision.form</field>
+        <field name="model">clearance.revision</field>
+        <field name="arch" type="xml">
+            <form string="Clearance Revision">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="clearance_id" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="date" readonly="1"/>
+                            <field name="user_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="reason" readonly="1"/>
+                        <field name="note" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_custom_clearance_menu" model="ir.actions.act_window">
+        <field name="name">Customs Clearance</field>
+        <field name="res_model">custom.clearance</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Menuitem -->
+    <menuitem id="menu_custom_clearance"
+              name="Clearance"
+              parent="menu_freight_root"
+              action="action_custom_clearance_menu"
+              sequence="20"/>
+</odoo>

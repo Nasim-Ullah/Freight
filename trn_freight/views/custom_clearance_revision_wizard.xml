@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_custom_clearance_revision_wizard_form" model="ir.ui.view">
+        <field name="name">custom.clearance.revision.wizard.form</field>
+        <field name="model">custom.clearance.revision</field>
+        <field name="arch" type="xml">
+            <form string="Create Clearance Revision">
+                <group>
+                    <field name="clearance_id" invisible="1"/>
+                    <field name="reason" placeholder="State the reason for this revision..." required="1"/>
+                    <field name="note" placeholder="Additional details or notes..."/>
+                </group>
+                <footer>
+                    <button name="action_create_revision" string="Create Revision" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

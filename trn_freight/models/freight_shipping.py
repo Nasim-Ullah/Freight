@@ -1,6 +1,10 @@
 from odoo import models, fields, api
 # from odoo.exceptions import ValidationError
 from odoo.exceptions import ValidationError, UserError
+try:
+    from odoo import Command
+except ImportError:
+    from odoo.orm.commands import Command
 
 
 class FreightShipping(models.Model):
@@ -27,6 +31,8 @@ class FreightShipping(models.Model):
     route_line_ids = fields.One2many('freight.route.line', 'shipping_id', string='Route Lines')
     service_line_ids = fields.One2many('freight.order.service', 'shipping_id', string='Service Lines')
     track_line_ids = fields.One2many('freight.track', 'shipping_id', string='Tracking Lines')
+    clearance_ids = fields.One2many('custom.clearance', 'shipping_id', string='Customs Clearances')
+    invoice_ids = fields.Many2many('account.move', string='Invoices', copy=False)
 
     transport = fields.Selection([
         ('land', 'Land'),
@@ -57,32 +63,48 @@ class FreightShipping(models.Model):
         ('cancel', 'Cancelled'),
         ('done', 'Done'),
     ], string='Status', default='draft', required=True)
-
     def action_submit(self):
         for record in self:
             record.state = 'submitted'
+            partners = (record.shipper_id | record.consignee_id | record.agent_id).ids
+            if partners:
+                record.message_post(
+                    body=f"Freight Order {record.name} has been submitted.",
+                    partner_ids=partners,
+                )
 
     def action_confirm(self):
-        # for record in self:
-        #     record.state = 'confirmed'
         for record in self:
+            if not record.clearance_ids:
+                raise UserError("A customs clearance is required before confirming the freight order.")
+            if any(clearance.state == 'draft' for clearance in record.clearance_ids):
+                raise UserError("Cannot confirm order: Customs clearance is still in Draft state. Please confirm the clearance first.")
             record.state = 'confirmed'
             containers = record.cargo_line_ids.mapped('container_id')
             if containers:
                 containers.write({'state': 'reserved'})
+            partners = (record.shipper_id | record.consignee_id | record.agent_id).ids
+            if partners:
+                record.message_post(
+                    body=f"Freight Order {record.name} has been confirmed.",
+                    partner_ids=partners,
+                )
 
     def action_invoice(self):
-        for record in self:
-            record.state = 'invoiced'
+        return self.action_create_invoice()
 
     def action_done(self):
-        # for record in self:
-        #     record.state = 'done'
         for record in self:
             record.state = 'done'
             containers = record.cargo_line_ids.mapped('container_id')
             if containers:
                 containers.write({'state': 'available'})
+            partners = (record.shipper_id | record.consignee_id | record.agent_id).ids
+            if partners:
+                record.message_post(
+                    body=f"Freight Order {record.name} has been marked as Done.",
+                    partner_ids=partners,
+                )
 
     def action_cancel(self):
         for record in self:
@@ -95,11 +117,16 @@ class FreightShipping(models.Model):
         self.ensure_one()
         return {
             'type': 'ir.actions.act_window',
-            'name': 'Tracking',
-            'res_model': 'freight.track',
-            'view_mode': 'list,form',
-            'domain': [('shipping_id', '=', self.id)],
-            'context': {'default_shipping_id': self.id},
+            'name': 'Track Order',
+            'res_model': 'freight.order.track',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_shipping_id': self.id,
+                'default_transport': self.transport or 'land',
+                'default_source_port_id': self.loading_port_id.id if self.loading_port_id else False,
+                'default_destination_port_id': self.discharge_port_id.id if self.discharge_port_id else False,
+            },
         }
 
     def action_draft(self):
@@ -113,23 +140,144 @@ class FreightShipping(models.Model):
     clearance_count = fields.Integer(string='Clearance Count', compute='_compute_clearance_count')
     invoice_count = fields.Integer(string='Invoice Count', compute='_compute_invoice_count')
 
+    @api.depends('clearance_ids')
     def _compute_clearance_count(self):
         for record in self:
-            record.clearance_count = 0
+            record.clearance_count = len(record.clearance_ids)
 
+    @api.depends('invoice_ids')
     def _compute_invoice_count(self):
         for record in self:
-            record.invoice_count = 0
+            record.invoice_count = len(record.invoice_ids)
+
+    def action_create_invoice(self):
+        self.ensure_one()
+        if self.state != 'confirmed':
+            raise UserError("Invoices can only be created when the order is Confirmed.")
+        if not self.shipper_id:
+            raise UserError("A Shipper partner is required to create a customer invoice.")
+
+        invoice_lines = []
+        # Cargo lines
+        for line in self.cargo_line_ids:
+            qty = line.weight if line.billing_on == 'weight' else line.volume
+            desc = f"Cargo: {line.product_id.name or 'Goods'} ({line.billing_on.capitalize() if line.billing_on else ''})"
+            invoice_lines.append(Command.create({
+                'name': desc,
+                'quantity': qty,
+                'price_unit': line.unit_price,
+                'tax_ids': [Command.clear()],
+            }))
+
+        # Route lines
+        for line in self.route_line_ids:
+            desc = f"Route: {line.source_port_id.name or ''} to {line.destination_port_id.name or ''}"
+            invoice_lines.append(Command.create({
+                'name': desc,
+                'quantity': 1.0,
+                'price_unit': line.sale_price,
+                'tax_ids': [Command.clear()],
+            }))
+
+        # Service lines
+        for line in self.service_line_ids:
+            desc = f"Service: {line.service_id.name or ''}"
+            invoice_lines.append(Command.create({
+                'name': desc,
+                'quantity': line.quantity,
+                'price_unit': line.sale,
+                'tax_ids': [Command.clear()],
+            }))
+
+        invoice = self.env['account.move'].create({
+            'move_type': 'out_invoice',
+            'partner_id': self.shipper_id.id,
+            'invoice_origin': self.name,
+            'company_id': self.company_id.id,
+            'invoice_line_ids': invoice_lines,
+        })
+
+        self.invoice_ids = [Command.link(invoice.id)]
+        self.state = 'invoiced'
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Customer Invoice',
+            'res_model': 'account.move',
+            'view_mode': 'form',
+            'res_id': invoice.id,
+            'target': 'current',
+        }
+
+    def action_view_invoice(self):
+        self.ensure_one()
+        if len(self.invoice_ids) == 1:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'Customer Invoice',
+                'res_model': 'account.move',
+                'view_mode': 'form',
+                'res_id': self.invoice_ids[0].id,
+                'target': 'current',
+            }
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Customer Invoices',
+            'res_model': 'account.move',
+            'view_mode': 'list,form',
+            'domain': [('id', 'in', self.invoice_ids.ids)],
+        }
 
     def action_custom_clearance(self):
         self.ensure_one()
-            # For Custom clearance action logic or opening view
+        # If the clearance already exists, the button opens it
+        if self.clearance_ids:
+            clearance = self.clearance_ids[0]
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'Customs Clearance',
+                'res_model': 'custom.clearance',
+                'view_mode': 'form',
+                'res_id': clearance.id,
+                'target': 'current',
+            }
+        # Otherwise, create the clearance with order's ports, agent and date
+        clearance_date = self.order_date.date() if self.order_date else fields.Date.context_today(self)
+        clearance = self.env['custom.clearance'].create({
+            'shipping_id': self.id,
+            'loading_port_id': self.loading_port_id.id,
+            'discharge_port_id': self.discharge_port_id.id,
+            'agent_id': self.agent_id.id,
+            'date': clearance_date,
+            'company_id': self.company_id.id,
+        })
         return {
             'type': 'ir.actions.act_window',
-            'name': 'Custom Clearance',
-            'res_model': 'freight.shipping',
+            'name': 'Customs Clearance',
+            'res_model': 'custom.clearance',
+            'view_mode': 'form',
+            'res_id': clearance.id,
+            'target': 'current',
+        }
+
+    def action_view_clearance(self):
+        self.ensure_one()
+        if len(self.clearance_ids) == 1:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'Customs Clearance',
+                'res_model': 'custom.clearance',
+                'view_mode': 'form',
+                'res_id': self.clearance_ids[0].id,
+                'target': 'current',
+            }
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Customs Clearances',
+            'res_model': 'custom.clearance',
             'view_mode': 'list,form',
-            'domain': [('id', '=', self.id)],
+            'domain': [('shipping_id', '=', self.id)],
+            'context': {'default_shipping_id': self.id},
         }
 
     # Footer
@@ -164,7 +312,7 @@ class FreightShipping(models.Model):
                     hasattr(record, 'service_line_ids') and record.service_line_ids) else 0.0
 
             # Grand total
-            record.total = record.total + record.routes_total
+            record.total = record.total + record.routes_total + record.services_total
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -177,6 +325,10 @@ class FreightShipping(models.Model):
         for record in self:
             if record.state in ('confirmed', 'done'):
                 raise UserError("Deleting a confirmed order is refused.")
+            if any(clearance.state in ('confirmed', 'done') for clearance in record.clearance_ids):
+                raise UserError("Deleting an order with a confirmed clearance is refused.")
+            draft_clearances = record.clearance_ids.filtered(lambda c: c.state == 'draft')
+            draft_clearances.unlink()
         return super().unlink()
 
     @api.constrains('loading_port_id', 'discharge_port_id', 'transport')
@@ -231,7 +383,7 @@ class FreightCargoLine(models.Model):
     @api.depends('container_id', 'billing_on')
     def _compute_unit_price(self):
         for line in self:
-            # Yahan aap pricing model ya container ke mutabiq unit price compute kar sakte hain
+            # here you can compute pricing model or unit price according to container
             line.unit_price = 0.0
 
     @api.depends('weight', 'volume', 'unit_price', 'billing_on')
@@ -241,6 +393,27 @@ class FreightCargoLine(models.Model):
                 line.total_price = line.unit_price * line.weight
             else:
                 line.total_price = line.unit_price * line.volume
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('shipping_id'):
+                shipping = self.env['freight.shipping'].browse(vals['shipping_id'])
+                if shipping.state in ('confirmed', 'invoiced', 'done'):
+                    raise UserError("Cargo lines cannot be added once the order is Confirmed or later.")
+        return super().create(vals_list)
+
+    def write(self, vals):
+        for line in self:
+            if line.shipping_id and line.shipping_id.state in ('confirmed', 'invoiced', 'done'):
+                raise UserError("Cargo lines cannot be changed once the order is Confirmed or later.")
+        return super().write(vals)
+
+    def unlink(self):
+        for line in self:
+            if line.shipping_id and line.shipping_id.state in ('confirmed', 'invoiced', 'done'):
+                raise UserError("Cargo lines cannot be removed once the order is Confirmed or later.")
+        return super().unlink()
 
 
 class FreightRouteLine(models.Model):
@@ -265,12 +438,41 @@ class FreightRouteLine(models.Model):
         ('water', 'Water'),
     ], string='Transport', required=True)
 
-    sale_price = fields.Float(string='Sale', digits=(6, 2), compute='_compute_route_sale', store=True)
+    sale_price = fields.Float(string='Sale', digits=(6, 2), compute='_compute_route_sale', store=True, readonly=False)
 
     @api.depends('route_id', 'transport')
     def _compute_route_sale(self):
         for line in self:
-            line.sale_price = 0.0
+            if line.route_id and line.transport:
+                if line.transport == 'land':
+                    line.sale_price = line.route_id.land_price
+                elif line.transport == 'air':
+                    line.sale_price = line.route_id.air_price
+                elif line.transport == 'water':
+                    line.sale_price = line.route_id.water_price
+            elif not line.sale_price:
+                line.sale_price = 0.0
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('shipping_id'):
+                shipping = self.env['freight.shipping'].browse(vals['shipping_id'])
+                if shipping.state in ('invoiced', 'done'):
+                    raise UserError("Route lines cannot be added once the order is Invoiced or later.")
+        return super().create(vals_list)
+
+    def write(self, vals):
+        for line in self:
+            if line.shipping_id and line.shipping_id.state in ('invoiced', 'done'):
+                raise UserError("Route lines cannot be changed once the order is Invoiced or later.")
+        return super().write(vals)
+
+    def unlink(self):
+        for line in self:
+            if line.shipping_id and line.shipping_id.state in ('invoiced', 'done'):
+                raise UserError("Route lines cannot be removed once the order is Invoiced or later.")
+        return super().unlink()
 
 
 class FreightOrderService(models.Model):
@@ -296,6 +498,27 @@ class FreightOrderService(models.Model):
     def _compute_total_sale(self):
         for line in self:
             line.total_sale = line.quantity * line.sale
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('shipping_id'):
+                shipping = self.env['freight.shipping'].browse(vals['shipping_id'])
+                if shipping.state in ('invoiced', 'done'):
+                    raise UserError("Service lines cannot be added once the order is Invoiced or later.")
+        return super().create(vals_list)
+
+    def write(self, vals):
+        for line in self:
+            if line.shipping_id and line.shipping_id.state in ('invoiced', 'done'):
+                raise UserError("Service lines cannot be changed once the order is Invoiced or later.")
+        return super().write(vals)
+
+    def unlink(self):
+        for line in self:
+            if line.shipping_id and line.shipping_id.state in ('invoiced', 'done'):
+                raise UserError("Service lines cannot be removed once the order is Invoiced or later.")
+        return super().unlink()
 
 
 class FreightTrack(models.Model):

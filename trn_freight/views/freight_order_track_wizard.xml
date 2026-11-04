@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_freight_order_track_wizard_form" model="ir.ui.view">
+        <field name="name">freight.order.track.wizard.form</field>
+        <field name="model">freight.order.track</field>
+        <field name="arch" type="xml">
+            <form string="Track Freight Order">
+                <group>
+                    <field name="shipping_id" invisible="1"/>
+                    <group>
+                        <field name="date"/>
+                        <field name="transport"/>
+                        <field name="received_delivered"/>
+                    </group>
+                    <group>
+                        <field name="source_port_id"/>
+                        <field name="destination_port_id"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_add_tracking" string="Save" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>
