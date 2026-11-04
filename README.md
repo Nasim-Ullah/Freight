@@ -25,50 +25,48 @@ A comprehensive, enterprise-ready **Logistics, Shipping & Freight Operations Man
 
 ## 🏗️ Architecture & Workflow
 
-The module connects freight shipping transactions with master data, container availability, customs compliance, and billing pipelines.
+An end-to-end operational pipeline connecting order booking, customs compliance, transit tracking, automated customer invoicing, and backend lock enforcement:
 
 ```mermaid
-flowchart TD
-    subgraph OrderCreation ["1. Freight Order Creation"]
-        A["Draft Order (FOxxxx)"] --> B["Add Cargo, Routes & Services"]
-        B --> C["Port Transport Compatibility Check"]
-    end
+flowchart LR
+    A(["Draft Order"]):::start --> B["Add Cargo & Routes"]:::step
+    B --> C["Port Compatibility Check"]:::step
+    C --> D["Customs Clearance & BOL"]:::step
+    D --> E{"Clearance<br/>Confirmed?"}:::gate
 
-    subgraph CustomsFlow ["2. Customs Compliance Gate"]
-        C --> D["Click 'Create Clearance'"]
-        D --> E["Draft Clearance (CLR/FOxxxx)"]
-        E --> F["Upload Binary Docs (BOL, Invoices)"]
-        F --> G["Action Confirm Clearance"]
-        G -.->|Optional Revision| H["Revision Wizard (custom.clearance.revision)"]
-        H --> I["Clearance Revision Log (REV/...)"]
-    end
+    E -- "Yes" --> F(["Order Confirmed"]):::milestone
+    E -- "No" --> X["Confirmation Blocked"]:::blocked
 
-    subgraph OrderExecution ["3. Execution, Invoicing & Protection Locks"]
-        G --> J["Order Action Submit (Chatter Notify)"]
-        J --> K{"Clearance Gate: Is Clearance Confirmed?"}
-        K -- "No / Draft" --> L["Raise UserError (Confirmation Blocked)"]
-        K -- "Yes" --> M["Order Action Confirm (Chatter Notify)"]
-        M --> N["Containers Reserved (available -> reserved)"]
-        M --> LOCK1["🔒 Lock 1: Cargo Lines Locked in ORM"]
-        M --> TRK["Track Wizard (freight.order.track -> freight.track)"]
-        TRK --> CHAT1["Chatter Notify: Shipper, Consignee, Agent"]
-        M --> INV["Click 'Create Invoice'"]
-        INV --> OUTINV["Generate account.move (Invoice Total = Order Total)"]
-        OUTINV --> LOCK2["🔒 Lock 2: Routes & Services Locked in ORM"]
-        OUTINV --> INVST["Order State: Invoiced"]
-        INVST --> P["Order Action Done (Chatter Notify)"]
-        P --> Q["Containers Auto-Released (reserved -> available)"]
-    end
+    F --> G["Track Wizard & Chatter"]:::feature
+    F --> H["Create Invoice (account.move)"]:::feature
+    F --> L1["🔒 Lock 1: Cargo Protected"]:::lock
 
-    style A fill:#e1f5fe,stroke:#0288d1,stroke-width:2px
-    style G fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
-    style L fill:#ffebee,stroke:#d32f2f,stroke-width:2px
-    style M fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
-    style LOCK1 fill:#fff3e0,stroke:#f57c00,stroke-width:2px
-    style LOCK2 fill:#fff3e0,stroke:#f57c00,stroke-width:2px
-    style OUTINV fill:#e0f2f1,stroke:#00796b,stroke-width:2px
-    style Q fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    H --> L2["🔒 Lock 2: Routes Protected"]:::lock
+    H --> I(["Invoiced State"]):::milestone
+
+    G --> J(["Order Done"]):::done
+    I --> J
+    J --> K["Containers Auto-Released"]:::step
+
+    classDef start fill:#0f172a,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+    classDef step fill:#1e293b,stroke:#64748b,stroke-width:1.5px,color:#f8fafc;
+    classDef gate fill:#1e293b,stroke:#f59e0b,stroke-width:2px,color:#fef3c7;
+    classDef blocked fill:#450a0a,stroke:#ef4444,stroke-width:1.5px,color:#fca5a5;
+    classDef milestone fill:#064e3b,stroke:#10b981,stroke-width:2px,color:#ecfdf5;
+    classDef feature fill:#1e293b,stroke:#818cf8,stroke-width:1.5px,color:#e0e7ff;
+    classDef lock fill:#3b1e08,stroke:#f97316,stroke-width:1.5px,color:#ffedd5;
+    classDef done fill:#14532d,stroke:#22c55e,stroke-width:2px,color:#f0fdf4;
 ```
+
+### 🔄 Operational Lifecycle Stages
+
+| Stage | Order State | Key Operations & Compliance Gate | System Automation & Protection Locks |
+| :--- | :---: | :--- | :--- |
+| **1. Order Booking** | `Draft` | Add cargo items, multi-leg routes, and services. | Port-transport compatibility validation. |
+| **2. Customs Compliance** | `Draft` $\rightarrow$ `Submitted` | Generate `CLR/{FO}`, upload BOL & invoices, confirm clearance. | Gate: Order cannot confirm if clearance is in `Draft`. |
+| **3. Confirmation** | `Confirmed` | Transition order, broadcast chatter notifications to partners. | 🔒 **Lock 1:** Cargo lines locked in ORM (`create/write/unlink`). Containers reserved. |
+| **4. Tracking & Invoicing**| `Invoiced` | Log transit milestones via popup wizard; generate customer invoice. | 🔒 **Lock 2:** Route & service lines locked. **Invoice Total == Order Total**. |
+| **5. Completion** | `Done` | Finalize shipment; post delivery notice to stakeholders. | Containers auto-released back to `available`. Order archived. |
 
 ---
 
