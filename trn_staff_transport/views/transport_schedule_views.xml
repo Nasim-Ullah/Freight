@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Schedule Tree / List View -->
+    <record id="view_logistics_transport_schedule_tree" model="ir.ui.view">
+        <field name="name">logistics.transport.schedule.list</field>
+        <field name="model">logistics.transport.schedule</field>
+        <field name="arch" type="xml">
+            <list string="Transport Schedules">
+                <field name="name"/>
+                <field name="route_id"/>
+                <field name="direction"/>
+                <field name="departure_time" widget="float_time"/>
+                <field name="arrival_time" widget="float_time"/>
+                <field name="days_display"/>
+                <field name="vehicle_id" optional="show"/>
+                <field name="driver_id" optional="show"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Schedule Form View -->
+    <record id="view_logistics_transport_schedule_form" model="ir.ui.view">
+        <field name="name">logistics.transport.schedule.form</field>
+        <field name="model">logistics.transport.schedule</field>
+        <field name="arch" type="xml">
+            <form string="Transport Schedule">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name" string="Schedule Name"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. Route A - Morning Pickup"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Route &amp; Direction">
+                            <field name="active" invisible="1"/>
+                            <field name="route_id"/>
+                            <field name="direction"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Timings">
+                            <field name="departure_time" widget="float_time"/>
+                            <field name="arrival_time" widget="float_time"/>
+                            <field name="days_display"/>
+                        </group>
+                    </group>
+
+                    <group string="Operating Weekdays">
+                        <div class="o_row">
+                            <span class="oe_inline"><strong>Days: </strong></span>
+                            <field name="monday" class="oe_inline"/> <label for="monday" string="Mon" class="me-3"/>
+                            <field name="tuesday" class="oe_inline"/> <label for="tuesday" string="Tue" class="me-3"/>
+                            <field name="wednesday" class="oe_inline"/> <label for="wednesday" string="Wed" class="me-3"/>
+                            <field name="thursday" class="oe_inline"/> <label for="thursday" string="Thu" class="me-3"/>
+                            <field name="friday" class="oe_inline"/> <label for="friday" string="Fri" class="me-3"/>
+                            <field name="saturday" class="oe_inline"/> <label for="saturday" string="Sat" class="me-3"/>
+                            <field name="sunday" class="oe_inline"/> <label for="sunday" string="Sun"/>
+                        </div>
+                    </group>
+
+                    <group string="Vehicle &amp; Driver Overrides (Optional)">
+                        <group>
+                            <field name="vehicle_id" placeholder="Leave empty to use route vehicle"/>
+                            <field name="driver_id" placeholder="Leave empty to use route driver"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Schedule Search View -->
+    <record id="view_logistics_transport_schedule_search" model="ir.ui.view">
+        <field name="name">logistics.transport.schedule.search</field>
+        <field name="model">logistics.transport.schedule</field>
+        <field name="arch" type="xml">
+            <search string="Search Schedules">
+                <field name="name"/>
+                <field name="route_id"/>
+                <filter string="Pickup" name="filter_pickup" domain="[('direction', '=', 'pickup')]"/>
+                <filter string="Drop-off" name="filter_drop_off" domain="[('direction', '=', 'drop_off')]"/>
+                <separator/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter string="Route" name="group_route" context="{'group_by': 'route_id'}"/>
+                    <filter string="Direction" name="group_direction" context="{'group_by': 'direction'}"/>
+                    <filter string="Company" name="group_company" context="{'group_by': 'company_id'}" groups="base.group_multi_company"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Schedule Action -->
+    <record id="action_logistics_transport_schedule" model="ir.actions.act_window">
+        <field name="name">Route Schedules</field>
+        <field name="res_model">logistics.transport.schedule</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_logistics_transport_schedule_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create daily or weekly schedules for staff transport routes.
+            </p>
+        </field>
+    </record>
+</odoo>

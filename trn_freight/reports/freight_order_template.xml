@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_freight_order_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 13px; color: #333333;">
+                        <!-- Inline CSS for Crisp Printing & Multi-page Pagination -->
+                        <style>
+                            .report-title-box {
+                                border-bottom: 2px solid #0056b3;
+                                padding-bottom: 8px;
+                                margin-bottom: 16px;
+                            }
+                            .info-card {
+                                background-color: #f8f9fa;
+                                border: 1px solid #e9ecef;
+                                border-radius: 4px;
+                                padding: 10px 14px;
+                                margin-bottom: 16px;
+                            }
+                            .info-card table td {
+                                padding: 3px 6px;
+                                border: none;
+                            }
+                            .info-label {
+                                font-weight: 600;
+                                color: #495057;
+                                width: 38%;
+                            }
+                            .section-heading {
+                                font-size: 14px;
+                                font-weight: 700;
+                                color: #0056b3;
+                                margin-top: 18px;
+                                margin-bottom: 8px;
+                                text-transform: uppercase;
+                                border-bottom: 1px solid #dee2e6;
+                                padding-bottom: 4px;
+                            }
+                            table.report-table {
+                                width: 100%;
+                                border-collapse: collapse;
+                                margin-bottom: 16px;
+                            }
+                            table.report-table thead {
+                                display: table-header-group; /* Repeat column headers on next page */
+                            }
+                            table.report-table th {
+                                background-color: #f1f3f5;
+                                color: #212529;
+                                font-weight: 600;
+                                border: 1px solid #dee2e6;
+                                padding: 6px 8px;
+                                font-size: 12px;
+                            }
+                            table.report-table td {
+                                border: 1px solid #e9ecef;
+                                padding: 6px 8px;
+                                vertical-align: middle;
+                                font-size: 12px;
+                            }
+                            table.report-table tr {
+                                page-break-inside: avoid; /* Prevent row cutting across pages */
+                            }
+                            .totals-card {
+                                width: 340px;
+                                margin-left: auto;
+                                margin-top: 10px;
+                                border: 1px solid #dee2e6;
+                                border-radius: 4px;
+                                overflow: hidden;
+                                page-break-inside: avoid;
+                            }
+                            .totals-card table {
+                                width: 100%;
+                                margin-bottom: 0;
+                            }
+                            .totals-card td {
+                                padding: 5px 10px;
+                                border: none;
+                            }
+                            .grand-total-row {
+                                background-color: #e7f1ff;
+                                font-weight: 700;
+                                font-size: 14px;
+                                color: #004085;
+                                border-top: 2px solid #b8daff !important;
+                            }
+                            .badge-status {
+                                display: inline-block;
+                                padding: 3px 8px;
+                                font-size: 11px;
+                                font-weight: 600;
+                                border-radius: 3px;
+                                text-transform: uppercase;
+                            }
+                        </style>
+
+                        <!-- Header Title Banner -->
+                        <div class="row report-title-box align-items-center">
+                            <div class="col-8">
+                                <h3 style="margin: 0; font-weight: 700; color: #1a1a1a;">
+                                    FREIGHT ORDER: <span t-field="doc.name"/>
+                                </h3>
+                            </div>
+                            <div class="col-4 text-end text-right">
+                                <span class="badge-status"
+                                      t-attf-style="background-color: #{'#28a745' if doc.state == 'done' else '#17a2b8' if doc.state in ('confirmed', 'invoiced') else '#ffc107'}; color: #{'#ffffff' if doc.state in ('done', 'confirmed', 'invoiced') else '#212529'};">
+                                    <span t-field="doc.state"/>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- 2-Column Order & Partner Details -->
+                        <div class="row">
+                            <!-- Left Column: Shipping & Partner Information -->
+                            <div class="col-6">
+                                <div class="info-card">
+                                    <table style="width: 100%;">
+                                        <tr>
+                                            <td class="info-label">Shipper:</td>
+                                            <td><strong t-field="doc.shipper_id.name"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="info-label">Consignee:</td>
+                                            <td><span t-field="doc.consignee_id.name"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="info-label">Customs Agent:</td>
+                                            <td><span t-field="doc.agent_id.name"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="info-label">Operation:</td>
+                                            <td><span t-field="doc.shipping_type"/></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Right Column: Logistics & Schedule Information -->
+                            <div class="col-6">
+                                <div class="info-card">
+                                    <table style="width: 100%;">
+                                        <tr>
+                                            <td class="info-label">Order Date:</td>
+                                            <td><span t-field="doc.order_date" t-options='{"widget": "datetime"}'/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="info-label">Expected Date:</td>
+                                            <td><span t-field="doc.expected_date" t-options='{"widget": "datetime"}'/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="info-label">Loading Port:</td>
+                                            <td><span t-field="doc.loading_port_id.name"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="info-label">Discharge Port:</td>
+                                            <td><span t-field="doc.discharge_port_id.name"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="info-label">Transport:</td>
+                                            <td>
+                                                <span t-field="doc.transport"/>
+                                                <t t-if="doc.transport == 'land' and doc.land_type">
+                                                    (<span t-field="doc.land_type"/>)
+                                                </t>
+                                                <t t-if="doc.transport == 'water' and doc.water_type">
+                                                    (<span t-field="doc.water_type"/>)
+                                                </t>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 1. Cargo Lines Table -->
+                        <div class="section-heading">Cargo Lines</div>
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 5%; text-align: center;">#</th>
+                                    <th style="width: 25%;">Goods / Commodity</th>
+                                    <th style="width: 18%;">Container</th>
+                                    <th style="width: 12%; text-align: center;">Billed On</th>
+                                    <th style="width: 10%; text-align: right;">Weight (kg)</th>
+                                    <th style="width: 10%; text-align: right;">Volume (m³)</th>
+                                    <th style="width: 10%; text-align: right;">Unit Price</th>
+                                    <th style="width: 10%; text-align: right;">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="cargo_idx" t-value="1"/>
+                                <tr t-foreach="doc.cargo_line_ids" t-as="cargo">
+                                    <td style="text-align: center;"><t t-esc="cargo_idx"/></td>
+                                    <td><strong t-field="cargo.product_id.name"/></td>
+                                    <td><span t-field="cargo.container_id.name"/></td>
+                                    <td style="text-align: center;"><span t-field="cargo.billing_on"/></td>
+                                    <td style="text-align: right;"><span t-field="cargo.weight"/></td>
+                                    <td style="text-align: right;"><span t-field="cargo.volume"/></td>
+                                    <td style="text-align: right;">
+                                        <span t-field="cargo.unit_price"
+                                              t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                                    </td>
+                                    <td style="text-align: right; font-weight: 600;">
+                                        <span t-field="cargo.total_price"
+                                              t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                                    </td>
+                                    <t t-set="cargo_idx" t-value="cargo_idx + 1"/>
+                                </tr>
+                                <tr t-if="not doc.cargo_line_ids">
+                                    <td colspan="8" class="text-center text-muted" style="text-align: center; font-style: italic;">
+                                        No cargo lines specified.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- 2. Route Lines Table (Conditional) -->
+                        <t t-if="doc.route_line_ids">
+                            <div class="section-heading">Freight Routes</div>
+                            <table class="report-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 5%; text-align: center;">#</th>
+                                        <th style="width: 30%;">Route Name</th>
+                                        <th style="width: 25%;">Source Port</th>
+                                        <th style="width: 25%;">Destination Port</th>
+                                        <th style="width: 15%; text-align: right;">Sale Price</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-set="route_idx" t-value="1"/>
+                                    <tr t-foreach="doc.route_line_ids" t-as="route">
+                                        <td style="text-align: center;"><t t-esc="route_idx"/></td>
+                                        <td><span t-field="route.route_id.name"/></td>
+                                        <td><span t-field="route.source_port_id.name"/></td>
+                                        <td><span t-field="route.destination_port_id.name"/></td>
+                                        <td style="text-align: right; font-weight: 600;">
+                                            <span t-field="route.sale_price"
+                                                  t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                                        </td>
+                                        <t t-set="route_idx" t-value="route_idx + 1"/>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </t>
+
+                        <!-- 3. Service Lines Table (Conditional) -->
+                        <t t-if="doc.service_line_ids">
+                            <div class="section-heading">Additional Services</div>
+                            <table class="report-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 5%; text-align: center;">#</th>
+                                        <th style="width: 35%;">Service</th>
+                                        <th style="width: 25%;">Vendor</th>
+                                        <th style="width: 10%; text-align: right;">Quantity</th>
+                                        <th style="width: 12%; text-align: right;">Unit Price</th>
+                                        <th style="width: 13%; text-align: right;">Total Sale</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-set="service_idx" t-value="1"/>
+                                    <tr t-foreach="doc.service_line_ids" t-as="srv">
+                                        <td style="text-align: center;"><t t-esc="service_idx"/></td>
+                                        <td><span t-field="srv.service_id.name"/></td>
+                                        <td><span t-field="srv.vendor_id.name"/></td>
+                                        <td style="text-align: right;"><span t-field="srv.quantity"/></td>
+                                        <td style="text-align: right;">
+                                            <span t-field="srv.sale"
+                                                  t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                                        </td>
+                                        <td style="text-align: right; font-weight: 600;">
+                                            <span t-field="srv.total_sale"
+                                                  t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                                        </td>
+                                        <t t-set="service_idx" t-value="service_idx + 1"/>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </t>
+
+                        <!-- Totals Summary Box -->
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="info-card" style="margin-top: 10px;">
+                                    <table style="width: 100%;">
+                                        <tr>
+                                            <td class="info-label">Total Cargo Weight:</td>
+                                            <td><strong><span t-field="doc.total_weight"/> kg</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="info-label">Total Cargo Volume:</td>
+                                            <td><strong><span t-field="doc.total_volume"/> m³</strong></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="totals-card">
+                                    <table>
+                                        <t t-if="doc.routes_total and doc.routes_total > 0">
+                                            <tr>
+                                                <td class="info-label">Routes Total:</td>
+                                                <td style="text-align: right;">
+                                                    <span t-field="doc.routes_total"
+                                                          t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                        <t t-if="doc.services_total and doc.services_total > 0">
+                                            <tr>
+                                                <td class="info-label">Services Total:</td>
+                                                <td style="text-align: right;">
+                                                    <span t-field="doc.services_total"
+                                                          t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                        <tr class="grand-total-row">
+                                            <td style="font-size: 14px;">Grand Total:</td>
+                                            <td style="text-align: right; font-size: 14px;">
+                                                <span t-field="doc.total"
+                                                      t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

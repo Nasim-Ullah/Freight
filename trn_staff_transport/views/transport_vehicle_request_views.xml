@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vehicle Request List View -->
+    <record id="view_logistics_transport_vehicle_request_tree" model="ir.ui.view">
+        <field name="name">logistics.transport.vehicle.request.list</field>
+        <field name="model">logistics.transport.vehicle.request</field>
+        <field name="arch" type="xml">
+            <list string="Vehicle Requests"
+                  decoration-muted="state == 'cancelled'"
+                  decoration-danger="state == 'rejected'"
+                  decoration-info="state == 'draft'"
+                  decoration-warning="state == 'submitted'"
+                  decoration-primary="state == 'approved'"
+                  decoration-success="state in ('assigned', 'done')">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="vehicle_id"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
+                <field name="approver_id" optional="show"/>
+                <field name="state"
+                       widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state == 'submitted'"
+                       decoration-primary="state == 'approved'"
+                       decoration-danger="state == 'rejected'"
+                       decoration-success="state in ('assigned', 'done')"
+                       decoration-muted="state == 'cancelled'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vehicle Request Form View -->
+    <record id="view_logistics_transport_vehicle_request_form" model="ir.ui.view">
+        <field name="name">logistics.transport.vehicle.request.form</field>
+        <field name="model">logistics.transport.vehicle.request</field>
+        <field name="arch" type="xml">
+            <form string="Vehicle Request">
+                <header>
+                    <button name="action_submit"
+                            string="Submit Request"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_approve"
+                            string="Approve"
+                            type="object"
+                            class="btn-success"
+                            invisible="state != 'submitted'"
+                            groups="trn_staff_transport.group_transport_manager"/>
+                    <button name="action_reject"
+                            string="Reject"
+                            type="object"
+                            class="btn-danger"
+                            invisible="state != 'submitted'"
+                            groups="trn_staff_transport.group_transport_manager"/>
+                    <button name="action_assign"
+                            string="Assign Vehicle"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state != 'approved'"/>
+                    <button name="action_done"
+                            string="Mark Done"
+                            type="object"
+                            class="btn-success"
+                            invisible="state != 'assigned'"/>
+                    <button name="action_reset_draft"
+                            string="Reset to Draft"
+                            type="object"
+                            invisible="state not in ('cancelled', 'rejected')"/>
+                    <button name="action_cancel"
+                            string="Cancel"
+                            type="object"
+                            invisible="state in ('done', 'cancelled')"/>
+                    <field name="state"
+                           widget="statusbar"
+                           statusbar_visible="draft,submitted,approved,assigned,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Request Number"/>
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Requester Details">
+                            <field name="employee_id"/>
+                            <field name="user_id" invisible="1"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Reservation Schedule">
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                            <field name="vehicle_id"/>
+                            <field name="driver_id"/>
+                        </group>
+                    </group>
+
+                    <group string="Approval Details" invisible="state not in ('approved', 'rejected', 'assigned', 'done')">
+                        <group>
+                            <field name="approver_id"/>
+                            <field name="approval_date"/>
+                            <field name="rejection_reason" invisible="state != 'rejected'"/>
+                        </group>
+                    </group>
+
+                    <group string="Purpose / Destination">
+                        <field name="purpose" placeholder="Describe the business trip reason, destination, or passenger details..."/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vehicle Request Search View -->
+    <record id="view_logistics_transport_vehicle_request_search" model="ir.ui.view">
+        <field name="name">logistics.transport.vehicle.request.search</field>
+        <field name="model">logistics.transport.vehicle.request</field>
+        <field name="arch" type="xml">
+            <search string="Search Vehicle Requests">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="vehicle_id"/>
+                <field name="approver_id"/>
+                <filter string="My Requests" name="my_requests" domain="[('user_id', '=', uid)]"/>
+                <separator/>
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="To Approve" name="to_approve" domain="[('state', '=', 'submitted')]"/>
+                <filter string="Approved" name="approved" domain="[('state', '=', 'approved')]"/>
+                <filter string="Assigned" name="assigned" domain="[('state', '=', 'assigned')]"/>
+                <filter string="Done" name="done" domain="[('state', '=', 'done')]"/>
+                <group>
+                    <filter string="Requester" name="group_employee" context="{'group_by': 'employee_id'}"/>
+                    <filter string="Vehicle" name="group_vehicle" context="{'group_by': 'vehicle_id'}"/>
+                    <filter string="State" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Company" name="group_company" context="{'group_by': 'company_id'}" groups="base.group_multi_company"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Vehicle Request Action -->
+    <record id="action_logistics_transport_vehicle_request" model="ir.actions.act_window">
+        <field name="name">Vehicle Requests</field>
+        <field name="res_model">logistics.transport.vehicle.request</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_logistics_transport_vehicle_request_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Submit a new staff vehicle reservation request.
+            </p>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Trip List View -->
+    <record id="view_logistics_transport_trip_tree" model="ir.ui.view">
+        <field name="name">logistics.transport.trip.list</field>
+        <field name="model">logistics.transport.trip</field>
+        <field name="arch" type="xml">
+            <list string="Daily Transport Trips"
+                  decoration-muted="state == 'cancelled'"
+                  decoration-info="state == 'draft'"
+                  decoration-primary="state == 'planned'"
+                  decoration-warning="state == 'in_progress'"
+                  decoration-success="state == 'completed'">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="route_id"/>
+                <field name="schedule_id" optional="show"/>
+                <field name="direction"/>
+                <field name="vehicle_id"/>
+                <field name="driver_id"/>
+                <field name="planned_departure_time" widget="float_time"/>
+                <field name="passenger_count"/>
+                <field name="capacity"/>
+                <field name="occupancy_rate" widget="progressbar"/>
+                <field name="is_over_capacity" invisible="1"/>
+                <field name="state"
+                       widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-primary="state == 'planned'"
+                       decoration-warning="state == 'in_progress'"
+                       decoration-success="state == 'completed'"
+                       decoration-muted="state == 'cancelled'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Trip Form View -->
+    <record id="view_logistics_transport_trip_form" model="ir.ui.view">
+        <field name="name">logistics.transport.trip.form</field>
+        <field name="model">logistics.transport.trip</field>
+        <field name="arch" type="xml">
+            <form string="Transport Trip">
+                <header>
+                    <button name="action_plan"
+                            string="Plan Trip"
+                            type="object"
+                            class="btn-secondary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_start"
+                            string="Start Trip"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state not in ('draft', 'planned')"/>
+                    <button name="action_complete"
+                            string="Complete Trip"
+                            type="object"
+                            class="btn-success"
+                            invisible="state != 'in_progress'"/>
+                    <button name="action_reset_draft"
+                            string="Reset to Draft"
+                            type="object"
+                            invisible="state != 'cancelled'"/>
+                    <button name="action_cancel"
+                            string="Cancel Trip"
+                            type="object"
+                            invisible="state in ('completed', 'cancelled')"/>
+                    <field name="state"
+                           widget="statusbar"
+                           statusbar_visible="draft,planned,in_progress,completed"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon"
+                            title="Over Capacity"
+                            bg_color="text-bg-danger"
+                            invisible="not is_over_capacity"/>
+                    <div class="oe_title">
+                        <label for="name" string="Trip Number"/>
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Trip Details">
+                            <field name="route_id"/>
+                            <field name="schedule_id"/>
+                            <field name="direction"/>
+                            <field name="date"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Vehicle &amp; Capacity">
+                            <field name="vehicle_id"/>
+                            <field name="driver_id"/>
+                            <field name="capacity"/>
+                            <field name="passenger_count"/>
+                            <field name="free_seats"/>
+                            <field name="occupancy_rate" widget="progressbar"/>
+                            <field name="is_over_capacity" invisible="1"/>
+                        </group>
+                    </group>
+
+                    <group string="Trip Timings">
+                        <group string="Planned">
+                            <field name="planned_departure_time" widget="float_time"/>
+                            <field name="planned_arrival_time" widget="float_time"/>
+                        </group>
+                        <group string="Actual Executed">
+                            <field name="actual_departure_datetime"/>
+                            <field name="actual_arrival_datetime"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Passengers" name="page_passengers">
+                            <field name="passenger_ids">
+                                <list editable="bottom">
+                                    <field name="employee_id"/>
+                                    <field name="pickup_stop_id"/>
+                                    <field name="dropoff_stop_id"/>
+                                    <field name="status"
+                                           widget="badge"
+                                           decoration-info="status == 'expected'"
+                                           decoration-primary="status == 'boarded'"
+                                           decoration-danger="status == 'no_show'"
+                                           decoration-success="status == 'dropped'"
+                                           decoration-muted="status == 'cancelled'"/>
+                                    <field name="boarding_datetime"/>
+                                    <field name="drop_datetime"/>
+                                    <field name="notes" optional="hide"/>
+                                    <button name="action_board"
+                                            string="Board"
+                                            type="object"
+                                            icon="fa-sign-in"
+                                            class="btn-outline-primary btn-sm"
+                                            invisible="status in ('boarded', 'dropped', 'cancelled')"/>
+                                    <button name="action_drop"
+                                            string="Drop"
+                                            type="object"
+                                            icon="fa-sign-out"
+                                            class="btn-outline-success btn-sm"
+                                            invisible="status != 'boarded'"/>
+                                    <button name="action_no_show"
+                                            string="No Show"
+                                            type="object"
+                                            icon="fa-user-times"
+                                            class="btn-outline-danger btn-sm"
+                                            invisible="status != 'expected'"/>
+                                    <button name="action_reset"
+                                            string="Reset"
+                                            type="object"
+                                            icon="fa-undo"
+                                            class="btn-outline-secondary btn-sm"
+                                            invisible="status == 'expected'"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes" name="page_notes">
+                            <field name="notes" placeholder="Trip logs, delay reasons, driver handover notes..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Trip Search View -->
+    <record id="view_logistics_transport_trip_search" model="ir.ui.view">
+        <field name="name">logistics.transport.trip.search</field>
+        <field name="model">logistics.transport.trip</field>
+        <field name="arch" type="xml">
+            <search string="Search Trips">
+                <field name="name"/>
+                <field name="route_id"/>
+                <field name="vehicle_id"/>
+                <field name="driver_id"/>
+                <filter string="Today" name="filter_today" domain="[('date', '=', context_today())]"/>
+                <filter string="Draft" name="filter_draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="In Progress" name="filter_in_progress" domain="[('state', '=', 'in_progress')]"/>
+                <filter string="Completed" name="filter_completed" domain="[('state', '=', 'completed')]"/>
+                <separator/>
+                <filter string="Over Capacity" name="filter_over_capacity" domain="[('is_over_capacity', '=', True)]"/>
+                <group>
+                    <filter string="Route" name="group_route" context="{'group_by': 'route_id'}"/>
+                    <filter string="Date" name="group_date" context="{'group_by': 'date'}"/>
+                    <filter string="Direction" name="group_direction" context="{'group_by': 'direction'}"/>
+                    <filter string="State" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Company" name="group_company" context="{'group_by': 'company_id'}" groups="base.group_multi_company"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Trip Action -->
+    <record id="action_logistics_transport_trip" model="ir.actions.act_window">
+        <field name="name">Daily Trips</field>
+        <field name="res_model">logistics.transport.trip</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_logistics_transport_trip_search"/>
+        <field name="context">{'search_default_filter_today': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No daily transport trips found. Generate daily trips using the wizard or create a new trip manually.
+            </p>
+        </field>
+    </record>
+</odoo>

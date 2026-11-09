@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Custom Paper Format for Standard Freight Reports with External Layout -->
+    <record id="paperformat_freight_report" model="report.paperformat">
+        <field name="name">Freight A4 Report</field>
+        <field name="default" eval="False"/>
+        <field name="format">A4</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">32</field>
+        <field name="margin_bottom">22</field>
+        <field name="margin_left">10</field>
+        <field name="margin_right">10</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">26</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <!-- Report Action 1: Freight Order PDF Report -->
+    <record id="action_report_freight_order" model="ir.actions.report">
+        <field name="name">Freight Order</field>
+        <field name="model">freight.shipping</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">trn_freight.report_freight_order_template</field>
+        <field name="report_file">trn_freight.report_freight_order_template</field>
+        <field name="print_report_name">'Freight Order - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_freight_shipping"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="paperformat_freight_report"/>
+    </record>
+
+    <!-- Report Action 2: Tracking PDF Report -->
+    <record id="action_report_freight_tracking" model="ir.actions.report">
+        <field name="name">Tracking Report</field>
+        <field name="model">freight.shipping</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">trn_freight.report_freight_tracking_template</field>
+        <field name="report_file">trn_freight.report_freight_tracking_template</field>
+        <field name="print_report_name">'Tracking Report - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_freight_shipping"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="paperformat_freight_report"/>
+    </record>
+</odoo>

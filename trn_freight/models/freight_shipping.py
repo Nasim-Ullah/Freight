@@ -25,6 +25,12 @@ class FreightShipping(models.Model):
     order_date = fields.Datetime(string='Date', default=fields.Datetime.now)
     expected_date = fields.Datetime(string='Expected Date')
     company_id = fields.Many2one('res.company', string='Company', default=lambda self: self.env.company)
+    currency_id = fields.Many2one(
+        'res.currency',
+        string='Currency',
+        related='company_id.currency_id',
+        readonly=True,
+    )
 
     # child models
     cargo_line_ids = fields.One2many('freight.cargo.line', 'shipping_id', string='Cargo Lines')
@@ -42,7 +48,7 @@ class FreightShipping(models.Model):
 
     land_type = fields.Selection([
         ('ftl', 'FTL'),
-        ('ft', 'FT')
+        ('ltl', 'LTL')
     ], string='Land Shipping')
 
     water_type = fields.Selection([
@@ -51,8 +57,16 @@ class FreightShipping(models.Model):
     ], string='Water Shipping')
 
     # Ports
-    loading_port_id = fields.Many2one('freight.port', string='Loading Port')
-    discharge_port_id = fields.Many2one('freight.port', string='Discharging Port')
+    loading_port_id = fields.Many2one(
+        'freight.port',
+        string='Loading Port',
+        domain="[('is_air', '=', True)] if transport == 'air' else [('is_water', '=', True)] if transport == 'water' else [('is_land', '=', True)] if transport == 'land' else []",
+    )
+    discharge_port_id = fields.Many2one(
+        'freight.port',
+        string='Discharging Port',
+        domain="[('is_air', '=', True)] if transport == 'air' else [('is_water', '=', True)] if transport == 'water' else [('is_land', '=', True)] if transport == 'land' else []",
+    )
 
     # work flow state and action buttons
     state = fields.Selection([
@@ -346,6 +360,32 @@ class FreightShipping(models.Model):
                 elif order.transport == 'water' and not port.is_water:
                     raise ValidationError(f"The port '{port.name}' does not support the selected transport type '{order.transport}'.")
 
+    @api.onchange('transport')
+    def _onchange_transport(self):
+        """Automatically clear loading and discharge ports when transport mode changes,
+        and restrict port selection to compatible ports only."""
+        self.loading_port_id = False
+        self.discharge_port_id = False
+        if self.transport != 'land':
+            self.land_type = False
+        if self.transport != 'water':
+            self.water_type = False
+
+        domain = []
+        if self.transport == 'land':
+            domain = [('is_land', '=', True)]
+        elif self.transport == 'air':
+            domain = [('is_air', '=', True)]
+        elif self.transport == 'water':
+            domain = [('is_water', '=', True)]
+
+        return {
+            'domain': {
+                'loading_port_id': domain,
+                'discharge_port_id': domain,
+            }
+        }
+
 
 class FreightCargoLine(models.Model):
     _name = 'freight.cargo.line'
@@ -359,6 +399,12 @@ class FreightCargoLine(models.Model):
         store=True,
         readonly=True,
         index=True,
+    )
+    currency_id = fields.Many2one(
+        'res.currency',
+        string='Currency',
+        related='company_id.currency_id',
+        readonly=True,
     )
     container_id = fields.Many2one('freight.container', string='Container')
     product_id = fields.Many2one('product.product', string='Goods')
@@ -429,6 +475,12 @@ class FreightRouteLine(models.Model):
         readonly=True,
         index=True,
     )
+    currency_id = fields.Many2one(
+        'res.currency',
+        string='Currency',
+        related='company_id.currency_id',
+        readonly=True,
+    )
     route_id = fields.Many2one('freight.routes', string='Route', required=True)
     source_port_id = fields.Many2one('freight.port', string='Source Location')
     destination_port_id = fields.Many2one('freight.port', string='Destination Location')
@@ -488,6 +540,12 @@ class FreightOrderService(models.Model):
         readonly=True,
         index=True,
     )
+    currency_id = fields.Many2one(
+        'res.currency',
+        string='Currency',
+        related='company_id.currency_id',
+        readonly=True,
+    )
     service_id = fields.Many2one('freight.service', string='Service', required=True)
     vendor_id = fields.Many2one('res.partner', string='Vendor')
     quantity = fields.Float(string='Quantity', default=0.0)
@@ -533,6 +591,12 @@ class FreightTrack(models.Model):
         store=True,
         readonly=True,
         index=True,
+    )
+    currency_id = fields.Many2one(
+        'res.currency',
+        string='Currency',
+        related='company_id.currency_id',
+        readonly=True,
     )
     source_port_id = fields.Many2one('freight.port', string='Source Location', required=True)
     destination_port_id = fields.Many2one('freight.port', string='Destination Location', required=True)

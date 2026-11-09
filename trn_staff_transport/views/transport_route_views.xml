@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Route List View -->
+    <record id="view_logistics_transport_route_tree" model="ir.ui.view">
+        <field name="name">logistics.transport.route.list</field>
+        <field name="model">logistics.transport.route</field>
+        <field name="arch" type="xml">
+            <list string="Transport Routes">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="direction"/>
+                <field name="vehicle_id"/>
+                <field name="driver_id"/>
+                <field name="distance"/>
+                <field name="stop_count"/>
+                <field name="employee_count"/>
+                <field name="capacity"/>
+                <field name="occupancy_rate" widget="progressbar"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Route Form View -->
+    <record id="view_logistics_transport_route_form" model="ir.ui.view">
+        <field name="name">logistics.transport.route.form</field>
+        <field name="model">logistics.transport.route</field>
+        <field name="arch" type="xml">
+            <form string="Transport Route">
+                <header>
+                    <button name="action_view_stops_map"
+                            string="Stops on Map"
+                            type="object"
+                            class="oe_highlight"
+                            icon="fa-map-marker"/>
+                    <button name="action_open_google_maps"
+                            string="Google Maps"
+                            type="object"
+                            class="btn-secondary"
+                            icon="fa-globe"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_stops"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-map-pin">
+                            <field name="stop_count" widget="statinfo" string="Stops"/>
+                        </button>
+                        <button name="action_view_schedules"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-calendar">
+                            <field name="schedule_count" widget="statinfo" string="Schedules"/>
+                        </button>
+                        <button name="action_view_trips"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-road">
+                            <field name="trip_count" widget="statinfo" string="Trips"/>
+                        </button>
+                        <button name="action_view_employees"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-users">
+                            <field name="employee_count" widget="statinfo" string="Employees"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name" string="Route Name"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. Route A - North Industrial Hub"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Route Details">
+                            <field name="active" invisible="1"/>
+                            <field name="code"/>
+                            <field name="direction"/>
+                            <field name="distance"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Vehicle &amp; Driver">
+                            <field name="vehicle_id"/>
+                            <field name="driver_id"/>
+                            <field name="start_address_id" context="{'show_address': 1}"/>
+                            <field name="end_address_id" context="{'show_address': 1}"/>
+                        </group>
+                    </group>
+
+                    <group string="Capacity">
+                        <group>
+                            <field name="capacity"/>
+                            <field name="employee_count"/>
+                            <field name="occupancy_rate" widget="progressbar"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Schedules" name="page_schedules">
+                            <field name="schedule_ids">
+                                <list editable="bottom">
+                                    <field name="name"/>
+                                    <field name="direction"/>
+                                    <field name="departure_time" widget="float_time"/>
+                                    <field name="arrival_time" widget="float_time"/>
+                                    <field name="days_display"/>
+                                    <field name="vehicle_id" optional="show"/>
+                                    <field name="driver_id" optional="show"/>
+                                    <field name="active" widget="boolean_toggle"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Stops" name="page_stops">
+                            <field name="stop_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="address_id" context="{'show_address': 1}"/>
+                                    <field name="stop_type"/>
+                                    <field name="planned_time" widget="float_time"/>
+                                    <field name="notes"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Employees" name="page_employees">
+                            <field name="employee_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="work_email"/>
+                                    <field name="pickup_stop_id"/>
+                                    <field name="dropoff_stop_id"/>
+                                    <field name="transport_direction"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes" name="page_notes">
+                            <field name="notes" placeholder="Provide any special instructions, route safety notes, or shift timings..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Route Search View -->
+    <record id="view_logistics_transport_route_search" model="ir.ui.view">
+        <field name="name">logistics.transport.route.search</field>
+        <field name="model">logistics.transport.route</field>
+        <field name="arch" type="xml">
+            <search string="Search Routes">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="vehicle_id"/>
+                <field name="driver_id"/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter string="Direction" name="group_direction" context="{'group_by': 'direction'}"/>
+                    <filter string="Vehicle" name="group_vehicle" context="{'group_by': 'vehicle_id'}"/>
+                    <filter string="Company" name="group_company" context="{'group_by': 'company_id'}" groups="base.group_multi_company"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Route Action -->
+    <record id="action_logistics_transport_route" model="ir.actions.act_window">
+        <field name="name">Transport Routes</field>
+        <field name="res_model">logistics.transport.route</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_logistics_transport_route_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first staff transport route!
+            </p>
+            <p>
+                Configure routes, assign fleet vehicles and drivers, define sequential stops, and track real-time occupancy.
+            </p>
+        </field>
+    </record>
+</odoo>

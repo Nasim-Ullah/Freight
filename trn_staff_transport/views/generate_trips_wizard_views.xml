@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Generate Trips Wizard Form View -->
+    <record id="view_generate_trips_wizard_form" model="ir.ui.view">
+        <field name="name">logistics.transport.generate.trips.wizard.form</field>
+        <field name="model">logistics.transport.generate.trips.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Generate Daily Transport Trips">
+                <sheet>
+                    <p class="text-muted">
+                        Select a target date and options. The system will inspect active route schedules running on that weekday, generate trips, and automatically assign eligible route employees as expected passengers. Running this wizard multiple times for the same date will not duplicate trips.
+                    </p>
+                    <group>
+                        <group string="Parameters">
+                            <field name="date"/>
+                            <field name="direction"/>
+                        </group>
+                        <group string="Filter Routes (Optional)">
+                            <field name="route_ids" widget="many2many_tags" placeholder="All active routes..."/>
+                        </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_generate_trips"
+                            string="Generate Daily Trips"
+                            type="object"
+                            class="btn-primary"/>
+                    <button string="Cancel"
+                            class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Wizard Action -->
+    <record id="action_generate_trips_wizard" model="ir.actions.act_window">
+        <field name="name">Generate Daily Trips</field>
+        <field name="res_model">logistics.transport.generate.trips.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Menuitem under Operations -->
+    <menuitem id="menu_transport_generate_trips"
+              name="Generate Daily Trips"
+              parent="menu_transport_operations"
+              action="action_generate_trips_wizard"
+              sequence="2"/>
+</odoo>

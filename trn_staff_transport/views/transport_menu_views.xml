@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Root Menu -->
+    <menuitem id="menu_transport_root"
+              name="Staff Transport"
+              sequence="25"
+              web_icon="trn_staff_transport,static/description/icon.png"
+              groups="group_transport_user"/>
+
+    <!-- Operations Category -->
+    <menuitem id="menu_transport_operations"
+              name="Operations"
+              parent="menu_transport_root"
+              sequence="10"/>
+
+    <!-- Trips Menu -->
+    <menuitem id="menu_transport_trip"
+              name="Daily Trips"
+              parent="menu_transport_operations"
+              action="action_logistics_transport_trip"
+              sequence="5"/>
+
+    <!-- Routes Menu -->
+    <menuitem id="menu_transport_route"
+              name="Transport Routes"
+              parent="menu_transport_operations"
+              action="action_logistics_transport_route"
+              sequence="10"/>
+
+    <!-- Schedules Menu -->
+    <menuitem id="menu_transport_schedule"
+              name="Route Schedules"
+              parent="menu_transport_operations"
+              action="action_logistics_transport_schedule"
+              sequence="15"/>
+
+    <!-- Stops Menu -->
+    <menuitem id="menu_transport_stop"
+              name="Route Stops"
+              parent="menu_transport_operations"
+              action="action_logistics_transport_stop"
+              sequence="20"/>
+
+    <!-- Vehicle Requests Menu -->
+    <menuitem id="menu_transport_vehicle_request"
+              name="Vehicle Requests"
+              parent="menu_transport_operations"
+              action="action_logistics_transport_vehicle_request"
+              sequence="25"/>
+
+    <!-- Fleet & Staff Category -->
+    <menuitem id="menu_transport_fleet_staff"
+              name="Fleet &amp; Staff"
+              parent="menu_transport_root"
+              sequence="20"/>
+
+    <!-- Fleet Vehicles Menu -->
+    <menuitem id="menu_transport_vehicles"
+              name="Vehicles"
+              parent="menu_transport_fleet_staff"
+              action="fleet.fleet_vehicle_action"
+              sequence="10"/>
+
+    <!-- Employees Menu -->
+    <menuitem id="menu_transport_employees"
+              name="Employees"
+              parent="menu_transport_fleet_staff"
+              action="hr.open_view_employee_list_my"
+              sequence="20"/>
+</odoo>

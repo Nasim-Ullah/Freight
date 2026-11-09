@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- App Category: Staff Transport -->
+    <record id="module_category_staff_transport" model="ir.module.category">
+        <field name="name">Staff Transport</field>
+        <field name="description">Manage staff transportation routes, stops, and employee assignments.</field>
+        <field name="sequence">26</field>
+    </record>
+
+    <!-- Privilege for Odoo 19 user group selector -->
+    <record id="res_groups_privilege_staff_transport" model="res.groups.privilege">
+        <field name="name">Staff Transport</field>
+        <field name="sequence">10</field>
+        <field name="category_id" ref="module_category_staff_transport"/>
+    </record>
+
+    <!-- Normal Internal User Group -->
+    <record id="group_transport_user" model="res.groups">
+        <field name="name">User</field>
+        <field name="sequence">10</field>
+        <field name="privilege_id" ref="res_groups_privilege_staff_transport"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <!-- Manager Group -->
+    <record id="group_transport_manager" model="res.groups">
+        <field name="name">Manager</field>
+        <field name="sequence">20</field>
+        <field name="privilege_id" ref="res_groups_privilege_staff_transport"/>
+        <field name="implied_ids" eval="[(4, ref('group_transport_user'))]"/>
+        <field name="user_ids" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+    </record>
+
+    <!-- Multi-Company Record Rules -->
+    <record id="transport_route_company_rule" model="ir.rule">
+        <field name="name">Transport Route Multi-Company</field>
+        <field name="model_id" ref="model_logistics_transport_route"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="transport_stop_company_rule" model="ir.rule">
+        <field name="name">Transport Stop Multi-Company</field>
+        <field name="model_id" ref="model_logistics_transport_stop"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="transport_schedule_company_rule" model="ir.rule">
+        <field name="name">Transport Schedule Multi-Company</field>
+        <field name="model_id" ref="model_logistics_transport_schedule"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="transport_trip_company_rule" model="ir.rule">
+        <field name="name">Transport Trip Multi-Company</field>
+        <field name="model_id" ref="model_logistics_transport_trip"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="transport_passenger_company_rule" model="ir.rule">
+        <field name="name">Transport Trip Passenger Multi-Company</field>
+        <field name="model_id" ref="model_logistics_transport_trip_passenger"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="transport_vehicle_request_company_rule" model="ir.rule">
+        <field name="name">Transport Vehicle Request Multi-Company</field>
+        <field name="model_id" ref="model_logistics_transport_vehicle_request"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+</odoo>

@@ -46,7 +46,7 @@
                             <field name="shipper_id" required="1"/>
                             <field name="consignee_id"/>
                             <field name="order_date" required="1"/>
-                            <field name="loading_port_id" required="1"/>
+                            <field name="loading_port_id" required="1" domain="[('is_air', '=', True)] if transport == 'air' else [('is_water', '=', True)] if transport == 'water' else [('is_land', '=', True)] if transport == 'land' else []"/>
                             <field name="agent_id" required="1"/>
                         </group>
                         <group>
@@ -54,7 +54,7 @@
                             <field name="transport" required="1"/>
                             <field name="land_type" invisible="transport != 'land'" required="transport == 'land'"/>
                             <field name="water_type" invisible="transport != 'water'" required="transport == 'water'"/>
-                            <field name="discharge_port_id" required="1"/>
+                            <field name="discharge_port_id" required="1" domain="[('is_air', '=', True)] if transport == 'air' else [('is_water', '=', True)] if transport == 'water' else [('is_land', '=', True)] if transport == 'land' else []"/>
                             <field name="expected_date"/>
                             <field name="company_id" groups="base.group_multi_company"/>
                         </group>
