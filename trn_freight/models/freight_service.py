@@ -17,7 +17,7 @@ class FreightServiceLine(models.Model):
     service_id = fields.Many2one('freight.service', string='Service Reference', ondelete='cascade')
     company_id = fields.Many2one(
         'res.company',
-        string='Company',
+            string='Company',
         related='service_id.company_id',
         store=True,
         readonly=True,
