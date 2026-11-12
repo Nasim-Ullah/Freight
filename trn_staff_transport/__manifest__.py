@@ -26,6 +26,8 @@ Extends Fleet and Employees modules to provide end-to-end staff transport operat
         'security/transport_security.xml',
         'security/ir.model.access.csv',
         'data/ir_sequence_data.xml',
+        'data/fleet_vehicle_state_data.xml',
+        'views/res_partner_views.xml',
         'views/transport_trip_views.xml',
         'views/generate_trips_wizard_views.xml',
         'views/transport_vehicle_request_views.xml',

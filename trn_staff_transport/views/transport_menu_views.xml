@@ -15,56 +15,62 @@
 
     <!-- Trips Menu -->
     <menuitem id="menu_transport_trip"
-              name="Daily Trips"
+              name="Trips"
               parent="menu_transport_operations"
               action="action_logistics_transport_trip"
               sequence="5"/>
-
-    <!-- Routes Menu -->
-    <menuitem id="menu_transport_route"
-              name="Transport Routes"
-              parent="menu_transport_operations"
-              action="action_logistics_transport_route"
-              sequence="10"/>
-
-    <!-- Schedules Menu -->
-    <menuitem id="menu_transport_schedule"
-              name="Route Schedules"
-              parent="menu_transport_operations"
-              action="action_logistics_transport_schedule"
-              sequence="15"/>
-
-    <!-- Stops Menu -->
-    <menuitem id="menu_transport_stop"
-              name="Route Stops"
-              parent="menu_transport_operations"
-              action="action_logistics_transport_stop"
-              sequence="20"/>
 
     <!-- Vehicle Requests Menu -->
     <menuitem id="menu_transport_vehicle_request"
               name="Vehicle Requests"
               parent="menu_transport_operations"
               action="action_logistics_transport_vehicle_request"
-              sequence="25"/>
+              sequence="15"/>
 
-    <!-- Fleet & Staff Category -->
-    <menuitem id="menu_transport_fleet_staff"
-              name="Fleet &amp; Staff"
+    <!-- Planning Category -->
+    <menuitem id="menu_transport_planning"
+              name="Planning"
               parent="menu_transport_root"
               sequence="20"/>
 
-    <!-- Fleet Vehicles Menu -->
-    <menuitem id="menu_transport_vehicles"
-              name="Vehicles"
-              parent="menu_transport_fleet_staff"
-              action="fleet.fleet_vehicle_action"
+    <!-- Routes Menu -->
+    <menuitem id="menu_transport_route"
+              name="Routes"
+              parent="menu_transport_planning"
+              action="action_logistics_transport_route"
+              sequence="5"/>
+
+    <!-- Schedules Menu -->
+    <menuitem id="menu_transport_schedule"
+              name="Schedules"
+              parent="menu_transport_planning"
+              action="action_logistics_transport_schedule"
               sequence="10"/>
 
-    <!-- Employees Menu -->
-    <menuitem id="menu_transport_employees"
-              name="Employees"
-              parent="menu_transport_fleet_staff"
-              action="hr.open_view_employee_list_my"
+    <!-- Stops Menu -->
+    <menuitem id="menu_transport_stop"
+              name="Stops"
+              parent="menu_transport_planning"
+              action="action_logistics_transport_stop"
+              sequence="15"/>
+
+    <!-- Drivers Menu -->
+    <menuitem id="menu_transport_driver"
+              name="Drivers"
+              parent="menu_transport_planning"
+              action="action_transport_driver"
               sequence="20"/>
+
+    <!-- Reporting Category -->
+    <menuitem id="menu_transport_reporting"
+              name="Reporting"
+              parent="menu_transport_root"
+              sequence="30"/>
+
+    <!-- Passengers Menu -->
+    <menuitem id="menu_transport_reporting_passengers"
+              name="Passengers"
+              parent="menu_transport_reporting"
+              action="action_logistics_transport_trip_passenger"
+              sequence="10"/>
 </odoo>

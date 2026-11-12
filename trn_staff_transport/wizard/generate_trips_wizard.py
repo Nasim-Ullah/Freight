@@ -7,7 +7,7 @@ class LogisticsTransportGenerateTripsWizard(models.TransientModel):
     _description = 'Generate Daily Transport Trips Wizard'
 
     date = fields.Date(
-        string='Target Date',
+        string='Date',
         required=True,
         default=fields.Date.context_today,
         help='Date for which trips should be generated.',
@@ -22,18 +22,12 @@ class LogisticsTransportGenerateTripsWizard(models.TransientModel):
         help='Select specific routes or leave empty to process all active routes.',
     )
     direction = fields.Selection([
-        ('all', 'All Directions'),
+        ('all', 'All'),
         ('pickup', 'Pickup'),
         ('drop_off', 'Drop-off'),
-        ('both', 'Both (Pickup & Drop-off)'),
-    ], string='Direction Filter', default='all', required=True)
+    ], string='Direction', default='all', required=True)
 
     def action_generate_trips(self):
-        """Generate daily trips based on active route schedules for the given weekday.
-        Ensures idempotency: running twice for the same date will not duplicate trips.
-        Archived routes and inactive schedules are skipped.
-        Assigned route employees are added as expected passengers.
-        """
         self.ensure_one()
         target_date = self.date
         target_weekday = target_date.weekday()  # 0=Monday, 6=Sunday

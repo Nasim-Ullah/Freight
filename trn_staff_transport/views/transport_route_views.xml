@@ -6,16 +6,16 @@
         <field name="model">logistics.transport.route</field>
         <field name="arch" type="xml">
             <list string="Transport Routes">
-                <field name="name"/>
                 <field name="code"/>
+                <field name="name"/>
                 <field name="direction"/>
                 <field name="vehicle_id"/>
                 <field name="driver_id"/>
-                <field name="distance"/>
                 <field name="stop_count"/>
                 <field name="employee_count"/>
                 <field name="capacity"/>
-                <field name="occupancy_rate" widget="progressbar"/>
+                <field name="occupancy_rate"/>
+                <field name="company_id" groups="base.group_multi_company"/>
             </list>
         </field>
     </record>
@@ -28,15 +28,17 @@
             <form string="Transport Route">
                 <header>
                     <button name="action_view_stops_map"
-                            string="Stops on Map"
+                            string="View Stops on Map"
                             type="object"
-                            class="oe_highlight"
-                            icon="fa-map-marker"/>
+                            class="oe_highlight"/>
                     <button name="action_open_google_maps"
-                            string="Google Maps"
+                            string="Open in Google Maps"
                             type="object"
-                            class="btn-secondary"
-                            icon="fa-globe"/>
+                            class="btn-secondary"/>
+                    <button name="action_generate_trips"
+                            string="Generate Trips"
+                            type="object"
+                            class="btn-secondary"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
@@ -46,57 +48,49 @@
                                 icon="fa-map-pin">
                             <field name="stop_count" widget="statinfo" string="Stops"/>
                         </button>
-                        <button name="action_view_schedules"
-                                type="object"
-                                class="oe_stat_button"
-                                icon="fa-calendar">
-                            <field name="schedule_count" widget="statinfo" string="Schedules"/>
-                        </button>
-                        <button name="action_view_trips"
-                                type="object"
-                                class="oe_stat_button"
-                                icon="fa-road">
-                            <field name="trip_count" widget="statinfo" string="Trips"/>
-                        </button>
-                        <button name="action_view_employees"
-                                type="object"
-                                class="oe_stat_button"
-                                icon="fa-users">
-                            <field name="employee_count" widget="statinfo" string="Employees"/>
-                        </button>
                     </div>
                     <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
                     <div class="oe_title">
-                        <label for="name" string="Route Name"/>
+                        <label for="name"/>
                         <h1>
-                            <field name="name" placeholder="e.g. Route A - North Industrial Hub"/>
+                            <field name="name"/>
                         </h1>
                     </div>
                     <group>
-                        <group string="Route Details">
+                        <group>
                             <field name="active" invisible="1"/>
                             <field name="code"/>
                             <field name="direction"/>
-                            <field name="distance"/>
                             <field name="company_id" groups="base.group_multi_company"/>
-                        </group>
-                        <group string="Vehicle &amp; Driver">
-                            <field name="vehicle_id"/>
-                            <field name="driver_id"/>
                             <field name="start_address_id" context="{'show_address': 1}"/>
                             <field name="end_address_id" context="{'show_address': 1}"/>
                         </group>
+                        <group>
+                            <field name="vehicle_id"/>
+                            <field name="driver_id" domain="[('is_driver', '=', True), '|', ('company_id', '=', False), ('company_id', '=', company_id)]" context="{'default_is_driver': True, 'default_is_company': False}"/>
+                            <field name="distance"/>
+                        </group>
                     </group>
 
-                    <group string="Capacity">
+                    <group string="CAPACITY">
                         <group>
-                            <field name="capacity"/>
                             <field name="employee_count"/>
-                            <field name="occupancy_rate" widget="progressbar"/>
+                            <field name="capacity"/>
+                            <field name="occupancy_rate"/>
                         </group>
                     </group>
 
                     <notebook>
+                        <page string="Stops" name="page_stops">
+                            <field name="stop_ids">
+                                <list editable="bottom">
+                                    <field name="name"/>
+                                    <field name="address_id" string="Address" context="{'show_address': 1}"/>
+                                    <field name="planned_time" widget="float_time"/>
+                                    <field name="stop_type"/>
+                                </list>
+                            </field>
+                        </page>
                         <page string="Schedules" name="page_schedules">
                             <field name="schedule_ids">
                                 <list editable="bottom">
@@ -108,18 +102,6 @@
                                     <field name="vehicle_id" optional="show"/>
                                     <field name="driver_id" optional="show"/>
                                     <field name="active" widget="boolean_toggle"/>
-                                </list>
-                            </field>
-                        </page>
-                        <page string="Stops" name="page_stops">
-                            <field name="stop_ids">
-                                <list editable="bottom">
-                                    <field name="sequence" widget="handle"/>
-                                    <field name="name"/>
-                                    <field name="address_id" context="{'show_address': 1}"/>
-                                    <field name="stop_type"/>
-                                    <field name="planned_time" widget="float_time"/>
-                                    <field name="notes"/>
                                 </list>
                             </field>
                         </page>
@@ -166,7 +148,7 @@
 
     <!-- Route Action -->
     <record id="action_logistics_transport_route" model="ir.actions.act_window">
-        <field name="name">Transport Routes</field>
+        <field name="name">Routes</field>
         <field name="res_model">logistics.transport.route</field>
         <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_logistics_transport_route_search"/>

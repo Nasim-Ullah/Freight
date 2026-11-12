@@ -21,6 +21,16 @@
                 <field name="seat_capacity_override"/>
                 <field name="effective_capacity"/>
             </xpath>
+
+            <!-- Driver Domain and Context Restrictions -->
+            <xpath expr="//field[@name='driver_id']" position="attributes">
+                <attribute name="domain">[('is_driver', '=', True), '|', ('company_id', '=', False), ('company_id', '=', company_id)]</attribute>
+                <attribute name="context">{'default_is_driver': True, 'default_is_company': False}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='future_driver_id']" position="attributes">
+                <attribute name="domain">[('is_driver', '=', True), '|', ('company_id', '=', False), ('company_id', '=', company_id)]</attribute>
+                <attribute name="context">{'default_is_driver': True, 'default_is_company': False}</attribute>
+            </xpath>
         </field>
     </record>
 </odoo>

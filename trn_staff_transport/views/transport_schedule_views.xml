@@ -27,48 +27,35 @@
         <field name="arch" type="xml">
             <form string="Transport Schedule">
                 <sheet>
+                    <field name="name" invisible="1"/>
                     <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
-                    <div class="oe_title">
-                        <label for="name" string="Schedule Name"/>
-                        <h1>
-                            <field name="name" placeholder="e.g. Route A - Morning Pickup"/>
-                        </h1>
-                    </div>
                     <group>
-                        <group string="Route &amp; Direction">
-                            <field name="active" invisible="1"/>
+                        <group>
                             <field name="route_id"/>
                             <field name="direction"/>
-                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="active"/>
+                            <field name="company_id" invisible="1"/>
                         </group>
-                        <group string="Timings">
+                        <group>
                             <field name="departure_time" widget="float_time"/>
                             <field name="arrival_time" widget="float_time"/>
-                            <field name="days_display"/>
+                            <field name="vehicle_id"/>
+                            <field name="driver_id" domain="[('is_driver', '=', True), '|', ('company_id', '=', False), ('company_id', '=', company_id)]" context="{'default_is_driver': True, 'default_is_company': False}"/>
                         </group>
                     </group>
 
-                    <group string="Operating Weekdays">
-                        <div class="o_row">
-                            <span class="oe_inline"><strong>Days: </strong></span>
-                            <field name="monday" class="oe_inline"/> <label for="monday" string="Mon" class="me-3"/>
-                            <field name="tuesday" class="oe_inline"/> <label for="tuesday" string="Tue" class="me-3"/>
-                            <field name="wednesday" class="oe_inline"/> <label for="wednesday" string="Wed" class="me-3"/>
-                            <field name="thursday" class="oe_inline"/> <label for="thursday" string="Thu" class="me-3"/>
-                            <field name="friday" class="oe_inline"/> <label for="friday" string="Fri" class="me-3"/>
-                            <field name="saturday" class="oe_inline"/> <label for="saturday" string="Sat" class="me-3"/>
-                            <field name="sunday" class="oe_inline"/> <label for="sunday" string="Sun"/>
-                        </div>
-                    </group>
-
-                    <group string="Vehicle &amp; Driver Overrides (Optional)">
+                    <group string="OPERATING DAYS">
                         <group>
-                            <field name="vehicle_id" placeholder="Leave empty to use route vehicle"/>
-                            <field name="driver_id" placeholder="Leave empty to use route driver"/>
+                            <field name="monday"/>
+                            <field name="tuesday"/>
+                            <field name="wednesday"/>
+                            <field name="thursday"/>
+                            <field name="friday"/>
+                            <field name="saturday"/>
+                            <field name="sunday"/>
                         </group>
                     </group>
                 </sheet>
-                <chatter/>
             </form>
         </field>
     </record>
@@ -96,7 +83,7 @@
 
     <!-- Schedule Action -->
     <record id="action_logistics_transport_schedule" model="ir.actions.act_window">
-        <field name="name">Route Schedules</field>
+        <field name="name">Schedules</field>
         <field name="res_model">logistics.transport.schedule</field>
         <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_logistics_transport_schedule_search"/>

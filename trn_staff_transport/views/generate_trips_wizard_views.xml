@@ -7,22 +7,17 @@
         <field name="arch" type="xml">
             <form string="Generate Daily Transport Trips">
                 <sheet>
-                    <p class="text-muted">
-                        Select a target date and options. The system will inspect active route schedules running on that weekday, generate trips, and automatically assign eligible route employees as expected passengers. Running this wizard multiple times for the same date will not duplicate trips.
-                    </p>
                     <group>
-                        <group string="Parameters">
+                        <group>
                             <field name="date"/>
-                            <field name="direction"/>
-                        </group>
-                        <group string="Filter Routes (Optional)">
                             <field name="route_ids" widget="many2many_tags" placeholder="All active routes..."/>
+                            <field name="direction"/>
                         </group>
                     </group>
                 </sheet>
                 <footer>
                     <button name="action_generate_trips"
-                            string="Generate Daily Trips"
+                            string="Generate Trips"
                             type="object"
                             class="btn-primary"/>
                     <button string="Cancel"
@@ -35,16 +30,18 @@
 
     <!-- Wizard Action -->
     <record id="action_generate_trips_wizard" model="ir.actions.act_window">
-        <field name="name">Generate Daily Trips</field>
+        <field name="name">Generate Trips</field>
         <field name="res_model">logistics.transport.generate.trips.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
+        <field name="binding_model_id" ref="model_logistics_transport_trip"/>
+        <field name="binding_view_types">list</field>
     </record>
 
-    <!-- Menuitem under Operations -->
+    <!-- Menuitem under Operations (placed after Trips) -->
     <menuitem id="menu_transport_generate_trips"
-              name="Generate Daily Trips"
+              name="Generate Trips"
               parent="menu_transport_operations"
               action="action_generate_trips_wizard"
-              sequence="2"/>
+              sequence="10"/>
 </odoo>

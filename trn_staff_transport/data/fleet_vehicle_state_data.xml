@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="fleet_vehicle_state_ordered" model="fleet.vehicle.state">
+        <field name="name">Ordered</field>
+        <field name="sequence">6</field>
+    </record>
+
+    <record id="fleet_vehicle_state_reserve" model="fleet.vehicle.state">
+        <field name="name">Reserve</field>
+        <field name="sequence">9</field>
+    </record>
+
+    <record id="fleet_vehicle_state_waiting_list" model="fleet.vehicle.state">
+        <field name="name">Waiting List</field>
+        <field name="sequence">10</field>
+    </record>
+</odoo>

@@ -9,8 +9,11 @@ class LogisticsTransportRoute(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'name, id'
 
-    name = fields.Char(string='Route Name', required=True, tracking=True)
-    code = fields.Char(string='Route Code', copy=False, tracking=True)
+    name = fields.Char(
+        string='Name',
+        required=True,
+        tracking=True)
+    code = fields.Char(string='Code', copy=False, required=True, tracking=True)
     active = fields.Boolean(default=True)
     company_id = fields.Many2one(
         'res.company',
@@ -23,7 +26,7 @@ class LogisticsTransportRoute(models.Model):
     direction = fields.Selection([
         ('pickup', 'Pickup'),
         ('drop_off', 'Drop-off'),
-        ('both', 'Both (Pickup & Drop-off)'),
+        ('both', 'Both'),
     ], string='Direction', default='both', required=True, tracking=True)
 
     vehicle_id = fields.Many2one('fleet.vehicle', string='Vehicle', tracking=True)
@@ -34,6 +37,7 @@ class LogisticsTransportRoute(models.Model):
         compute='_compute_driver_id',
         store=True,
         readonly=False,
+        domain="[('is_driver', '=', True), '|', ('company_id', '=', False), ('company_id', '=', company_id)]",
     )
 
     start_address_id = fields.Many2one('res.partner', string='Start Address', tracking=True)
@@ -56,7 +60,7 @@ class LogisticsTransportRoute(models.Model):
     stop_count = fields.Integer(string='Stops Count', compute='_compute_stop_count', store=True)
     schedule_count = fields.Integer(string='Schedules Count', compute='_compute_schedule_count', store=True)
     trip_count = fields.Integer(string='Trips Count', compute='_compute_trip_count', store=True)
-    employee_count = fields.Integer(string='Employees Count', compute='_compute_employee_count', store=True)
+    employee_count = fields.Integer(string='Employee Count', compute='_compute_employee_count', store=True)
 
     capacity = fields.Integer(
         string='Capacity',
@@ -73,7 +77,7 @@ class LogisticsTransportRoute(models.Model):
         aggregator='avg',
     )
     distance = fields.Float(
-        string='Planned Distance (KM)',
+        string='Planned Distance (km)',
         tracking=True,
         help='Planned distance in kilometers for this route',
     )
@@ -86,6 +90,15 @@ class LogisticsTransportRoute(models.Model):
                 route.driver_id = route.vehicle_id.driver_id
             elif not route.driver_id:
                 route.driver_id = False
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if not vals.get('code'):
+                name = vals.get('name') or 'RT'
+                words = [w for w in name.split() if w]
+                vals['code'] = ''.join([w[0].upper() for w in words])[:6] if words else 'ROUTE'
+        return super().create(vals_list)
 
     @api.depends('stop_ids')
     def _compute_stop_count(self):
@@ -164,6 +177,21 @@ class LogisticsTransportRoute(models.Model):
             'view_mode': 'map,list,form',
             'domain': [('route_id', '=', self.id)],
             'context': {'default_route_id': self.id},
+        }
+
+    def action_generate_trips(self):
+        """Open the trip generator wizard for this route."""
+        self.ensure_one()
+        return {
+            'name': _('Generate Trips'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'logistics.transport.generate.trips.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_route_ids': [self.id],
+                'default_direction': self.direction if self.direction in ('pickup', 'drop_off') else 'all',
+            },
         }
 
     def action_view_employees(self):

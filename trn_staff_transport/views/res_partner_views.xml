@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Res Partner Form View Inheritance -->
+    <record id="view_partner_form_inherit_transport" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit.transport</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="priority" eval="20"/>
+        <field name="arch" type="xml">
+            <!-- Smart Button for Driver Trips -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_driver_trips"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-bus"
+                        invisible="not is_driver">
+                    <field name="trip_count" widget="statinfo" string="Trips"/>
+                </button>
+            </xpath>
+
+            <!-- Driver Info Fields -->
+            <xpath expr="//field[@name='category_id']" position="after">
+                <field name="is_driver"/>
+                <field name="driver_license_number" invisible="not is_driver"/>
+                <field name="driver_license_type" invisible="not is_driver"/>
+                <field name="driver_license_expiry" invisible="not is_driver"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Res Partner Search Filter Inheritance -->
+    <record id="view_res_partner_filter_inherit_transport" model="ir.ui.view">
+        <field name="name">res.partner.select.inherit.transport</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='type_person']" position="before">
+                <filter string="Drivers" name="filter_is_driver" domain="[('is_driver', '=', True)]"/>
+                <separator/>
+            </xpath>
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="driver_license_number"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Driver Dedicated List View -->
+    <record id="view_partner_driver_tree" model="ir.ui.view">
+        <field name="name">res.partner.driver.list</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <list string="Drivers">
+                <field name="display_name" string="Driver Name"/>
+                <field name="phone" class="o_force_ltr"/>
+                <field name="email"/>
+                <field name="driver_license_number"/>
+                <field name="driver_license_type"/>
+                <field name="driver_license_expiry"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Drivers Action -->
+    <record id="action_transport_driver" model="ir.actions.act_window">
+        <field name="name">Drivers</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[('is_driver', '=', True)]</field>
+        <field name="context">{'default_is_driver': True, 'default_is_company': False, 'search_default_filter_is_driver': 1}</field>
+        <field name="search_view_id" ref="base.view_res_partner_filter"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add a new driver
+            </p>
+            <p>
+                Manage staff transport drivers, driving licenses, and view assigned trips.
+            </p>
+        </field>
+    </record>
+
+    <!-- View Bindings for Drivers Action -->
+    <record id="action_transport_driver_view_kanban" model="ir.actions.act_window.view">
+        <field name="sequence" eval="10"/>
+        <field name="view_mode">kanban</field>
+        <field name="view_id" ref="base.res_partner_kanban_view"/>
+        <field name="act_window_id" ref="action_transport_driver"/>
+    </record>
+
+    <record id="action_transport_driver_view_tree" model="ir.actions.act_window.view">
+        <field name="sequence" eval="20"/>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_partner_driver_tree"/>
+        <field name="act_window_id" ref="action_transport_driver"/>
+    </record>
+
+    <record id="action_transport_driver_view_form" model="ir.actions.act_window.view">
+        <field name="sequence" eval="30"/>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="base.view_partner_form"/>
+        <field name="act_window_id" ref="action_transport_driver"/>
+    </record>
+</odoo>

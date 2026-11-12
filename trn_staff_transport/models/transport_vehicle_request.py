@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError, UserError, AccessError
 
@@ -10,18 +9,19 @@ class LogisticsTransportVehicleRequest(models.Model):
     _order = 'date_from desc, id desc'
 
     name = fields.Char(
-        string='Request Number',
+        string='Name',
         required=True,
         copy=False,
         readonly=True,
-        default='/',
+        default=lambda self: _('New'),
         tracking=True,
     )
     employee_id = fields.Many2one(
         'hr.employee',
-        string='Requester',
+        string='Employee',
         required=True,
         default=lambda self: self.env.user.employee_id,
+        check_company=True,
         tracking=True,
     )
     user_id = fields.Many2one(
@@ -31,17 +31,17 @@ class LogisticsTransportVehicleRequest(models.Model):
         readonly=True,
     )
     date_from = fields.Datetime(
-        string='From',
+        string='Requested From',
         required=True,
         tracking=True,
     )
     date_to = fields.Datetime(
-        string='To',
+        string='Requested To',
         required=True,
         tracking=True,
     )
     purpose = fields.Text(
-        string='Purpose / Destination',
+        string='Purpose',
         required=True,
         tracking=True,
     )
@@ -55,12 +55,12 @@ class LogisticsTransportVehicleRequest(models.Model):
         'res.partner',
         string='Driver',
         tracking=True,
+        domain="[('is_driver', '=', True), '|', ('company_id', '=', False), ('company_id', '=', company_id)]",
     )
 
     approver_id = fields.Many2one(
         'res.users',
         string='Approver',
-        readonly=True,
         copy=False,
         tracking=True,
     )
@@ -88,7 +88,6 @@ class LogisticsTransportVehicleRequest(models.Model):
         'res.company',
         string='Company',
         default=lambda self: self.env.company,
-        required=True,
         index=True,
     )
 

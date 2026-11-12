@@ -1,3 +1,4 @@
+from . import res_partner
 from . import transport_route
 from . import transport_stop
 from . import transport_schedule

@@ -5,24 +5,22 @@
         <field name="name">logistics.transport.trip.list</field>
         <field name="model">logistics.transport.trip</field>
         <field name="arch" type="xml">
-            <list string="Daily Transport Trips"
+            <list string="Trips"
                   decoration-muted="state == 'cancelled'"
                   decoration-info="state == 'draft'"
                   decoration-primary="state == 'planned'"
                   decoration-warning="state == 'in_progress'"
                   decoration-success="state == 'completed'">
-                <field name="name"/>
-                <field name="date"/>
+                <field name="name" string="Name"/>
+                <field name="date" string="Date"/>
                 <field name="route_id"/>
-                <field name="schedule_id" optional="show"/>
                 <field name="direction"/>
                 <field name="vehicle_id"/>
                 <field name="driver_id"/>
-                <field name="planned_departure_time" widget="float_time"/>
-                <field name="passenger_count"/>
-                <field name="capacity"/>
-                <field name="occupancy_rate" widget="progressbar"/>
-                <field name="is_over_capacity" invisible="1"/>
+                <field name="planned_departure_time"/>
+                <field name="passenger_count" string="Passengers"/>
+                <field name="capacity" string="Capacity"/>
+                <field name="free_seats" string="Available Seats"/>
                 <field name="state"
                        widget="badge"
                        decoration-info="state == 'draft'"
@@ -42,15 +40,15 @@
             <form string="Transport Trip">
                 <header>
                     <button name="action_plan"
-                            string="Plan Trip"
+                            string="Plan"
                             type="object"
-                            class="btn-secondary"
+                            class="btn-primary"
                             invisible="state != 'draft'"/>
                     <button name="action_start"
                             string="Start Trip"
                             type="object"
                             class="btn-primary"
-                            invisible="state not in ('draft', 'planned')"/>
+                            invisible="state != 'planned'"/>
                     <button name="action_complete"
                             string="Complete Trip"
                             type="object"
@@ -61,12 +59,16 @@
                             type="object"
                             invisible="state != 'cancelled'"/>
                     <button name="action_cancel"
-                            string="Cancel Trip"
+                            string="Cancel"
                             type="object"
                             invisible="state in ('completed', 'cancelled')"/>
+                    <button name="action_open_google_maps"
+                            string="Open Google Maps"
+                            type="object"
+                            class="btn-primary"/>
                     <field name="state"
                            widget="statusbar"
-                           statusbar_visible="draft,planned,in_progress,completed"/>
+                           statusbar_visible="draft,planned,in_progress,completed,cancelled"/>
                 </header>
                 <sheet>
                     <widget name="web_ribbon"
@@ -74,39 +76,39 @@
                             bg_color="text-bg-danger"
                             invisible="not is_over_capacity"/>
                     <div class="oe_title">
-                        <label for="name" string="Trip Number"/>
                         <h1>
-                            <field name="name"/>
+                            <field name="name" readonly="1"/>
                         </h1>
                     </div>
                     <group>
-                        <group string="Trip Details">
+                        <group>
+                            <field name="date"/>
                             <field name="route_id"/>
                             <field name="schedule_id"/>
                             <field name="direction"/>
-                            <field name="date"/>
-                            <field name="company_id" groups="base.group_multi_company"/>
                         </group>
-                        <group string="Vehicle &amp; Capacity">
+                        <group>
                             <field name="vehicle_id"/>
-                            <field name="driver_id"/>
-                            <field name="capacity"/>
-                            <field name="passenger_count"/>
-                            <field name="free_seats"/>
-                            <field name="occupancy_rate" widget="progressbar"/>
-                            <field name="is_over_capacity" invisible="1"/>
+                            <field name="driver_id" domain="[('is_driver', '=', True), '|', ('company_id', '=', False), ('company_id', '=', company_id)]" context="{'default_is_driver': True, 'default_is_company': False}"/>
+                            <field name="company_id" groups="base.group_multi_company" readonly="True"/>
                         </group>
                     </group>
 
                     <group string="Trip Timings">
-                        <group string="Planned">
-                            <field name="planned_departure_time" widget="float_time"/>
-                            <field name="planned_arrival_time" widget="float_time"/>
-                        </group>
-                        <group string="Actual Executed">
+                        <group>
+                            <field name="planned_departure_time"/>
                             <field name="actual_departure_datetime"/>
+                        </group>
+                        <group>
+                            <field name="planned_arrival_time"/>
                             <field name="actual_arrival_datetime"/>
                         </group>
+                    </group>
+                    <group string="Capacity">
+                        <field name="passenger_count"/>
+                        <field name="capacity"/>
+                        <field name="free_seats"/>
+                        <field name="occupancy_rate" widget="progressbar"/>
                     </group>
 
                     <notebook>
@@ -123,9 +125,8 @@
                                            decoration-danger="status == 'no_show'"
                                            decoration-success="status == 'dropped'"
                                            decoration-muted="status == 'cancelled'"/>
-                                    <field name="boarding_datetime"/>
-                                    <field name="drop_datetime"/>
-                                    <field name="notes" optional="hide"/>
+                                    <field name="boarding_time" optional="hide"/>
+                                    <field name="drop_time" optional="hide"/>
                                     <button name="action_board"
                                             string="Board"
                                             type="object"
@@ -192,14 +193,103 @@
 
     <!-- Trip Action -->
     <record id="action_logistics_transport_trip" model="ir.actions.act_window">
-        <field name="name">Daily Trips</field>
+        <field name="name">Trips</field>
         <field name="res_model">logistics.transport.trip</field>
         <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_logistics_transport_trip_search"/>
         <field name="context">{'search_default_filter_today': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                No daily transport trips found. Generate daily trips using the wizard or create a new trip manually.
+                No transport trips found. Generate trips using the wizard or create a new trip manually.
+            </p>
+        </field>
+    </record>
+
+    <!-- Passenger List View -->
+    <record id="view_logistics_transport_trip_passenger_tree" model="ir.ui.view">
+        <field name="name">logistics.transport.trip.passenger.list</field>
+        <field name="model">logistics.transport.trip.passenger</field>
+        <field name="arch" type="xml">
+            <list string="Passengers">
+                <field name="trip_id"/>
+                <field name="employee_id"/>
+                <field name="pickup_stop_id"/>
+                <field name="dropoff_stop_id"/>
+                <field name="status"
+                       widget="badge"
+                       decoration-info="status == 'expected'"
+                       decoration-primary="status == 'boarded'"
+                       decoration-danger="status == 'no_show'"
+                       decoration-success="status == 'dropped'"
+                       decoration-muted="status == 'cancelled'"/>
+                <field name="boarding_time"/>
+                <field name="drop_time"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Passenger Form View -->
+    <record id="view_logistics_transport_trip_passenger_form" model="ir.ui.view">
+        <field name="name">logistics.transport.trip.passenger.form</field>
+        <field name="model">logistics.transport.trip.passenger</field>
+        <field name="arch" type="xml">
+            <form string="Passenger">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="trip_id"/>
+                            <field name="pickup_stop_id"/>
+                            <field name="sequence" readonly="True"/>
+                            <field name="boarding_time"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="notes"/>
+                        </group>
+                        <group>
+                            <field name="employee_id"/>
+                            <field name="dropoff_stop_id"/>
+                            <field name="status"/>
+                            <field name="drop_time"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Passenger Search View -->
+    <record id="view_logistics_transport_trip_passenger_search" model="ir.ui.view">
+        <field name="name">logistics.transport.trip.passenger.search</field>
+        <field name="model">logistics.transport.trip.passenger</field>
+        <field name="arch" type="xml">
+            <search string="Search Passengers">
+                <field name="employee_id"/>
+                <field name="trip_id"/>
+                <field name="pickup_stop_id"/>
+                <field name="dropoff_stop_id"/>
+                <separator/>
+                <filter string="Expected" name="filter_expected" domain="[('status', '=', 'expected')]"/>
+                <filter string="Boarded" name="filter_boarded" domain="[('status', '=', 'boarded')]"/>
+                <filter string="Dropped" name="filter_dropped" domain="[('status', '=', 'dropped')]"/>
+                <filter string="No Show" name="filter_no_show" domain="[('status', '=', 'no_show')]"/>
+                <group>
+                    <filter string="Trip" name="group_trip" context="{'group_by': 'trip_id'}"/>
+                    <filter string="Status" name="group_status" context="{'group_by': 'status'}"/>
+                    <filter string="Pickup Stop" name="group_pickup" context="{'group_by': 'pickup_stop_id'}"/>
+                    <filter string="Drop-off Stop" name="group_dropoff" context="{'group_by': 'dropoff_stop_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Passenger Action -->
+    <record id="action_logistics_transport_trip_passenger" model="ir.actions.act_window">
+        <field name="name">Passengers</field>
+        <field name="res_model">logistics.transport.trip.passenger</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_logistics_transport_trip_passenger_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No passenger attendance records found.
             </p>
         </field>
     </record>

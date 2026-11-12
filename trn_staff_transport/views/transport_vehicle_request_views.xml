@@ -14,10 +14,10 @@
                   decoration-success="state in ('assigned', 'done')">
                 <field name="name"/>
                 <field name="employee_id"/>
-                <field name="vehicle_id"/>
                 <field name="date_from"/>
                 <field name="date_to"/>
-                <field name="approver_id" optional="show"/>
+                <field name="vehicle_id"/>
+                <field name="approver_id"/>
                 <field name="state"
                        widget="badge"
                        decoration-info="state == 'draft'"
@@ -38,7 +38,7 @@
             <form string="Vehicle Request">
                 <header>
                     <button name="action_submit"
-                            string="Submit Request"
+                            string="Submit"
                             type="object"
                             class="btn-primary"
                             invisible="state != 'draft'"/>
@@ -78,22 +78,23 @@
                 </header>
                 <sheet>
                     <div class="oe_title">
-                        <label for="name" string="Request Number"/>
                         <h1>
                             <field name="name"/>
                         </h1>
                     </div>
                     <group>
-                        <group string="Requester Details">
+                        <group>
                             <field name="employee_id"/>
                             <field name="user_id" invisible="1"/>
-                            <field name="company_id" groups="base.group_multi_company"/>
-                        </group>
-                        <group string="Reservation Schedule">
                             <field name="date_from"/>
                             <field name="date_to"/>
                             <field name="vehicle_id"/>
-                            <field name="driver_id"/>
+                            <field name="driver_id" domain="[('is_driver', '=', True), '|', ('company_id', '=', False), ('company_id', '=', company_id)]" context="{'default_is_driver': True, 'default_is_company': False}"/>
+                            <field name="purpose"/>
+                        </group>
+                        <group>
+                            <field name="approver_id" readonly="1"/>
+                            <field name="company_id" readonly="True" groups="base.group_multi_company"/>
                         </group>
                     </group>
 
@@ -103,10 +104,6 @@
                             <field name="approval_date"/>
                             <field name="rejection_reason" invisible="state != 'rejected'"/>
                         </group>
-                    </group>
-
-                    <group string="Purpose / Destination">
-                        <field name="purpose" placeholder="Describe the business trip reason, destination, or passenger details..."/>
                     </group>
                 </sheet>
                 <chatter/>

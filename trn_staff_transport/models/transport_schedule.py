@@ -17,7 +17,7 @@ class LogisticsTransportSchedule(models.Model):
     )
     route_id = fields.Many2one(
         'logistics.transport.route',
-        string='Transport Route',
+        string='Route',
         required=True,
         ondelete='cascade',
         index=True,
@@ -27,16 +27,16 @@ class LogisticsTransportSchedule(models.Model):
         ('pickup', 'Pickup'),
         ('drop_off', 'Drop-off'),
         ('both', 'Both (Pickup & Drop-off)'),
-    ], string='Direction', required=True, default='pickup', tracking=True)
+    ], string='Direction', required=True, default=False, tracking=True)
 
     # Weekdays
-    monday = fields.Boolean(string='Mon', default=True)
-    tuesday = fields.Boolean(string='Tue', default=True)
-    wednesday = fields.Boolean(string='Wed', default=True)
-    thursday = fields.Boolean(string='Thu', default=True)
-    friday = fields.Boolean(string='Fri', default=True)
-    saturday = fields.Boolean(string='Sat', default=False)
-    sunday = fields.Boolean(string='Sun', default=False)
+    monday = fields.Boolean(string='Monday', default=True)
+    tuesday = fields.Boolean(string='Tuesday', default=True)
+    wednesday = fields.Boolean(string='Wednesday', default=True)
+    thursday = fields.Boolean(string='Thursday', default=True)
+    friday = fields.Boolean(string='Friday', default=True)
+    saturday = fields.Boolean(string='Saturday', default=False)
+    sunday = fields.Boolean(string='Sunday', default=False)
 
     days_display = fields.Char(
         string='Operating Days',
@@ -47,14 +47,14 @@ class LogisticsTransportSchedule(models.Model):
     departure_time = fields.Float(
         string='Departure Time',
         required=True,
-        default=8.0,
+        default=0.0,
         help='Departure time in 24h format (e.g., 8.5 for 08:30)',
         tracking=True,
     )
     arrival_time = fields.Float(
         string='Arrival Time',
         required=True,
-        default=9.0,
+        default=0.0,
         help='Arrival time in 24h format (e.g., 9.5 for 09:30)',
         tracking=True,
     )
@@ -69,6 +69,7 @@ class LogisticsTransportSchedule(models.Model):
         'res.partner',
         string='Driver Override',
         tracking=True,
+        domain="[('is_driver', '=', True), '|', ('company_id', '=', False), ('company_id', '=', company_id)]",
         help='Overrides the default route driver for this schedule.',
     )
 
@@ -82,6 +83,13 @@ class LogisticsTransportSchedule(models.Model):
         index=True,
     )
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if not vals.get('direction'):
+                vals['direction'] = 'pickup'
+        return super().create(vals_list)
+
     @api.depends('route_id.name', 'direction', 'departure_time', 'arrival_time')
     def _compute_name(self):
         for rec in self:
@@ -89,7 +97,10 @@ class LogisticsTransportSchedule(models.Model):
             arr_str = self._format_float_time(rec.arrival_time)
             route_name = rec.route_id.name or _('New Schedule')
             direction_label = dict(rec._fields['direction'].selection).get(rec.direction, '')
-            rec.name = f"{route_name} - {direction_label} ({dep_str} - {arr_str})"
+            if direction_label:
+                rec.name = f"{route_name} - {direction_label} ({dep_str} - {arr_str})"
+            else:
+                rec.name = f"{route_name} ({dep_str} - {arr_str})"
 
     @api.depends('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday')
     def _compute_days_display(self):

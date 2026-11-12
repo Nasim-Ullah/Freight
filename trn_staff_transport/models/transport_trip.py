@@ -1,3 +1,4 @@
+import datetime
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError, UserError
 
@@ -13,11 +14,11 @@ class LogisticsTransportTrip(models.Model):
         required=True,
         copy=False,
         readonly=True,
-        default='/',
+        default=lambda self: _('New'),
         tracking=True,
     )
     date = fields.Date(
-        string='Trip Date',
+        string='Date',
         required=True,
         default=fields.Date.context_today,
         tracking=True,
@@ -37,20 +38,24 @@ class LogisticsTransportTrip(models.Model):
     direction = fields.Selection([
         ('pickup', 'Pickup'),
         ('drop_off', 'Drop-off'),
-        ('both', 'Both (Pickup & Drop-off)'),
     ], string='Direction', required=True, default='pickup', tracking=True)
 
     vehicle_id = fields.Many2one('fleet.vehicle', string='Vehicle', tracking=True)
-    driver_id = fields.Many2one('res.partner', string='Driver', tracking=True)
+    driver_id = fields.Many2one(
+        'res.partner',
+        string='Driver',
+        tracking=True,
+        domain="[('is_driver', '=', True), '|', ('company_id', '=', False), ('company_id', '=', company_id)]",
+    )
 
-    planned_departure_time = fields.Float(
+    planned_departure_time = fields.Datetime(
         string='Planned Departure',
-        help='Planned departure time in 24h float format (e.g. 8.0 for 08:00)',
+        help='Planned departure date and time',
         tracking=True,
     )
-    planned_arrival_time = fields.Float(
+    planned_arrival_time = fields.Datetime(
         string='Planned Arrival',
-        help='Planned arrival time in 24h float format (e.g. 9.5 for 09:30)',
+        help='Planned arrival date and time',
         tracking=True,
     )
 
@@ -80,13 +85,13 @@ class LogisticsTransportTrip(models.Model):
         tracking=True,
     )
     capacity = fields.Integer(
-        string='Vehicle Capacity',
+        string='Capacity',
         compute='_compute_passenger_metrics',
         store=True,
         tracking=True,
     )
     free_seats = fields.Integer(
-        string='Free Seats',
+        string='Available Seats',
         compute='_compute_passenger_metrics',
         store=True,
     )
@@ -120,12 +125,50 @@ class LogisticsTransportTrip(models.Model):
     )
     notes = fields.Text(string='Notes')
 
+    @classmethod
+    def _convert_float_to_datetime(cls, date_val, float_val):
+        """Convert 24h float time (e.g. 8.5) and date into a python datetime."""
+        if float_val is False or float_val is None:
+            return False
+        if not isinstance(float_val, (int, float)):
+            return float_val
+        if not date_val:
+            date_val = fields.Date.today()
+        elif isinstance(date_val, str):
+            date_val = fields.Date.to_date(date_val)
+        hours = int(float_val)
+        minutes = int(round((float_val - hours) * 60))
+        if minutes >= 60:
+            hours += 1
+            minutes = 0
+        return datetime.datetime.combine(date_val, datetime.time(min(hours, 23), min(minutes, 59)))
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
-            if vals.get('name', '/') == '/':
+            if not vals.get('name') or vals.get('name') in ('/', 'New', _('New')):
                 vals['name'] = self.env['ir.sequence'].next_by_code('logistics.transport.trip') or '/'
+            if not vals.get('direction'):
+                if vals.get('route_id'):
+                    route = self.env['logistics.transport.route'].browse(vals['route_id'])
+                    vals['direction'] = route.direction if route.direction in ('pickup', 'drop_off') else 'pickup'
+                else:
+                    vals['direction'] = 'pickup'
+            d = vals.get('date')
+            if 'planned_departure_time' in vals and isinstance(vals['planned_departure_time'], (int, float)):
+                vals['planned_departure_time'] = self._convert_float_to_datetime(d, vals['planned_departure_time'])
+            if 'planned_arrival_time' in vals and isinstance(vals['planned_arrival_time'], (int, float)):
+                vals['planned_arrival_time'] = self._convert_float_to_datetime(d, vals['planned_arrival_time'])
         return super().create(vals_list)
+
+    def write(self, vals):
+        if 'planned_departure_time' in vals and isinstance(vals['planned_departure_time'], (int, float)):
+            d = vals.get('date') or (self[:1].date if self else False)
+            vals['planned_departure_time'] = self._convert_float_to_datetime(d, vals['planned_departure_time'])
+        if 'planned_arrival_time' in vals and isinstance(vals['planned_arrival_time'], (int, float)):
+            d = vals.get('date') or (self[:1].date if self else False)
+            vals['planned_arrival_time'] = self._convert_float_to_datetime(d, vals['planned_arrival_time'])
+        return super().write(vals)
 
     @api.onchange('route_id')
     def _onchange_route_id(self):
@@ -137,12 +180,15 @@ class LogisticsTransportTrip(models.Model):
             if not self.direction:
                 self.direction = self.route_id.direction
 
-    @api.onchange('schedule_id')
+    @api.onchange('schedule_id', 'date')
     def _onchange_schedule_id(self):
         if self.schedule_id:
             self.direction = self.schedule_id.direction
-            self.planned_departure_time = self.schedule_id.departure_time
-            self.planned_arrival_time = self.schedule_id.arrival_time
+            trip_date = self.date or fields.Date.context_today(self)
+            if self.schedule_id.departure_time is not False and self.schedule_id.departure_time is not None:
+                self.planned_departure_time = self._convert_float_to_datetime(trip_date, self.schedule_id.departure_time)
+            if self.schedule_id.arrival_time is not False and self.schedule_id.arrival_time is not None:
+                self.planned_arrival_time = self._convert_float_to_datetime(trip_date, self.schedule_id.arrival_time)
             if self.schedule_id.vehicle_id:
                 self.vehicle_id = self.schedule_id.vehicle_id
             elif self.schedule_id.route_id.vehicle_id and not self.vehicle_id:
@@ -152,6 +198,11 @@ class LogisticsTransportTrip(models.Model):
                 self.driver_id = self.schedule_id.driver_id
             elif self.schedule_id.route_id.driver_id and not self.driver_id:
                 self.driver_id = self.schedule_id.route_id.driver_id
+
+    @api.onchange('vehicle_id')
+    def _onchange_vehicle_id(self):
+        if self.vehicle_id and self.vehicle_id.driver_id and not self.driver_id:
+            self.driver_id = self.vehicle_id.driver_id
 
     @api.depends('passenger_ids', 'passenger_ids.status', 'vehicle_id', 'vehicle_id.effective_capacity')
     def _compute_passenger_metrics(self):
@@ -212,12 +263,20 @@ class LogisticsTransportTrip(models.Model):
                 'actual_arrival_datetime': False,
             })
 
+    def action_open_google_maps(self):
+        """Open Google Maps for the trip's route."""
+        self.ensure_one()
+        if not self.route_id:
+            raise UserError(_("Please select a route first."))
+        return self.route_id.action_open_google_maps()
+
 
 class LogisticsTransportTripPassenger(models.Model):
     _name = 'logistics.transport.trip.passenger'
     _description = 'Trip Passenger Attendance'
-    _order = 'id'
+    _order = 'sequence, id'
 
+    sequence = fields.Integer(string='Sequence', default=0, index=True)
     trip_id = fields.Many2one(
         'logistics.transport.trip',
         string='Trip',
@@ -250,8 +309,8 @@ class LogisticsTransportTripPassenger(models.Model):
         ('cancelled', 'Cancelled'),
     ], string='Status', default='expected', required=True)
 
-    boarding_datetime = fields.Datetime(string='Boarding Time', readonly=True)
-    drop_datetime = fields.Datetime(string='Drop Time', readonly=True)
+    boarding_time = fields.Datetime(string='Boarding Time', readonly=True)
+    drop_time = fields.Datetime(string='Drop Time', readonly=True)
     notes = fields.Char(string='Notes')
 
     company_id = fields.Many2one(
@@ -299,7 +358,7 @@ class LogisticsTransportTripPassenger(models.Model):
         for rec in self:
             rec.write({
                 'status': 'boarded',
-                'boarding_datetime': fields.Datetime.now(),
+                'boarding_time': fields.Datetime.now(),
             })
 
     def action_no_show(self):
@@ -314,7 +373,7 @@ class LogisticsTransportTripPassenger(models.Model):
         for rec in self:
             rec.write({
                 'status': 'dropped',
-                'drop_datetime': fields.Datetime.now(),
+                'drop_time': fields.Datetime.now(),
             })
 
     def action_cancel(self):
@@ -329,6 +388,6 @@ class LogisticsTransportTripPassenger(models.Model):
         for rec in self:
             rec.write({
                 'status': 'expected',
-                'boarding_datetime': False,
-                'drop_datetime': False,
+                'boarding_time': False,
+                'drop_time': False,
             })

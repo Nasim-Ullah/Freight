@@ -19,6 +19,9 @@ class TestStaffTransport(TransactionCase):
         # Partners / Addresses
         cls.partner_driver = cls.env['res.partner'].create({
             'name': 'John Driver',
+            'is_driver': True,
+            'driver_license_number': 'DL-987654',
+            'driver_license_type': 'htv',
         })
         cls.partner_start = cls.env['res.partner'].create({
             'name': 'Main Factory HQ',
@@ -300,6 +303,13 @@ class TestStaffTransport(TransactionCase):
         self.assertIn('destination=', url)
         self.assertIn('waypoints=', url)
 
+    def test_stop_google_maps_action(self):
+        """Test generation of Google Maps Search URL for a single stop."""
+        action = self.stop_a1.action_open_google_maps()
+        self.assertEqual(action['type'], 'ir.actions.act_url')
+        self.assertEqual(action['target'], 'new')
+        self.assertIn('https://www.google.com/maps/search/?api=1', action['url'])
+
     def test_stops_map_action(self):
         """Test action to open route stops in map view."""
         action = self.route_a.action_view_stops_map()
@@ -489,18 +499,18 @@ class TestStaffTransport(TransactionCase):
             'dropoff_stop_id': self.stop_a2.id,
         })
         self.assertEqual(passenger.status, 'expected')
-        self.assertFalse(passenger.boarding_datetime)
-        self.assertFalse(passenger.drop_datetime)
+        self.assertFalse(passenger.boarding_time)
+        self.assertFalse(passenger.drop_time)
 
         # Board passenger
         passenger.action_board()
         self.assertEqual(passenger.status, 'boarded')
-        self.assertTrue(passenger.boarding_datetime)
+        self.assertTrue(passenger.boarding_time)
 
         # Drop passenger
         passenger.action_drop()
         self.assertEqual(passenger.status, 'dropped')
-        self.assertTrue(passenger.drop_datetime)
+        self.assertTrue(passenger.drop_time)
 
     def test_trip_passenger_stop_constraint_and_unique_employee(self):
         """Test constraints: stop belongs to route and duplicate employee rejected."""
@@ -845,6 +855,50 @@ class TestStaffTransport(TransactionCase):
         req.action_done()
         with self.assertRaises(UserError):
             req.unlink()
+
+    def test_driver_partner_creation_and_trip_count(self):
+        """Test driver partner fields, trip count computation, and trip action."""
+        driver = self.env['res.partner'].create({
+            'name': 'Test Driver Ali',
+            'is_driver': True,
+            'driver_license_number': 'LIC-12345',
+            'driver_license_type': 'psv',
+            'driver_license_expiry': '2028-12-31',
+        })
+        self.assertTrue(driver.is_driver)
+        self.assertEqual(driver.driver_license_number, 'LIC-12345')
+        self.assertEqual(driver.trip_count, 0)
+
+        # Create a trip with this driver
+        trip = self.env['logistics.transport.trip'].create({
+            'date': date.today(),
+            'route_id': self.route_a.id,
+            'driver_id': driver.id,
+            'vehicle_id': self.vehicle.id,
+        })
+        driver._compute_trip_count()
+        self.assertEqual(driver.trip_count, 1)
+
+        # Action view driver trips
+        action = driver.action_view_driver_trips()
+        self.assertEqual(action['res_model'], 'logistics.transport.trip')
+        self.assertIn(('driver_id', '=', driver.id), action['domain'])
+
+    def test_driver_domain_filtering(self):
+        """Test that only partners marked as is_driver match driver search domain."""
+        non_driver = self.env['res.partner'].create({
+            'name': 'Regular Customer',
+            'is_driver': False,
+        })
+        driver = self.env['res.partner'].create({
+            'name': 'Dedicated Driver',
+            'is_driver': True,
+        })
+
+        driver_partners = self.env['res.partner'].search([('is_driver', '=', True)])
+        self.assertIn(driver, driver_partners)
+        self.assertNotIn(non_driver, driver_partners)
+
 
 
 
