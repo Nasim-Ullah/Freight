@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="trn_freight_dashboard.FreightDashboard">
+        <div class="o_freight_dashboard h-100 overflow-auto p-3 p-md-4">
+            <!-- Header Section -->
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center pb-3 mb-4 border-bottom">
+                <div>
+                    <h2 class="fw-bold mb-1 text-dark">
+                        <i class="fa fa-tachometer text-primary me-2"/>Freight Operations Dashboard
+                    </h2>
+                    <p class="text-muted mb-0 small">
+                        Real-time analytics, order lifecycle tracking, and financial performance overview
+                    </p>
+                </div>
+                <div class="d-flex align-items-center mt-3 mt-sm-0 gap-2">
+                    <t t-if="state.lastUpdated">
+                        <span class="badge bg-light text-muted border px-2 py-1 small">
+                            <i class="fa fa-clock-o me-1"/>Updated: <t t-esc="state.lastUpdated"/>
+                        </span>
+                    </t>
+                    <button class="btn btn-primary btn-sm px-3 shadow-sm d-flex align-items-center"
+                            t-on-click="loadDashboardData"
+                            t-att-disabled="state.loading">
+                        <i class="fa fa-refresh me-2" t-att-class="{'fa-spin': state.loading}"/>
+                        <span>Refresh</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <t t-if="state.loading and !state.data">
+                <div class="d-flex flex-column justify-content-center align-items-center py-5 my-5">
+                    <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status"/>
+                    <h5 class="text-muted fw-normal">Aggregating freight operations data...</h5>
+                </div>
+            </t>
+
+            <!-- Dashboard Content -->
+            <t t-elif="state.data">
+                <!-- 1. Top KPI Summary Cards Row (Interactive Drill-Down) -->
+                <div class="row g-3 mb-4">
+                    <!-- Active Orders Card -->
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card o_kpi_card border-0 shadow-sm rounded-3 h-100 p-3 o_kpi_orders"
+                             t-on-click="onActiveOrdersClick"
+                             title="Click to view all active freight orders">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="text-muted text-uppercase fw-semibold small">Active Orders</span>
+                                    <h3 class="fw-bold mb-0 mt-1 text-primary">
+                                        <t t-esc="state.data.kpis.active_orders"/>
+                                    </h3>
+                                </div>
+                                <div class="o_kpi_icon_wrapper rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center">
+                                    <i class="fa fa-ship fs-4"/>
+                                </div>
+                            </div>
+                            <div class="mt-3 pt-2 border-top d-flex justify-content-between align-items-center small text-muted">
+                                <span>Total in System:</span>
+                                <span class="badge bg-light border text-primary fw-bold px-2 py-1"
+                                      t-on-click="onAllOrdersClick"
+                                      title="Click to view all orders">
+                                    View All (<t t-esc="state.data.kpis.total_orders"/>) <i class="fa fa-arrow-right ms-1"/>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Total Revenue Card -->
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card o_kpi_card border-0 shadow-sm rounded-3 h-100 p-3 o_kpi_revenue"
+                             t-on-click="onRevenueClick"
+                             title="Click to view revenue-generating freight orders">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="text-muted text-uppercase fw-semibold small">Total Revenue</span>
+                                    <h3 class="fw-bold mb-0 mt-1 text-success">
+                                        <t t-esc="formatCurrency(state.data.kpis.revenue)"/>
+                                    </h3>
+                                </div>
+                                <div class="o_kpi_icon_wrapper rounded-circle bg-success-subtle text-success d-flex align-items-center justify-content-center">
+                                    <i class="fa fa-line-chart fs-4"/>
+                                </div>
+                            </div>
+                            <div class="mt-3 pt-2 border-top d-flex justify-content-between align-items-center small text-muted">
+                                <span>Cargo + Routes + Services</span>
+                                <span class="badge bg-success-subtle text-success">Income <i class="fa fa-arrow-right ms-1"/></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Total Expenses Card -->
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card o_kpi_card border-0 shadow-sm rounded-3 h-100 p-3 o_kpi_expense"
+                             t-on-click="onExpenseClick"
+                             title="Click to view orders with services and expenses">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="text-muted text-uppercase fw-semibold small">Total Expenses</span>
+                                    <h3 class="fw-bold mb-0 mt-1 text-danger">
+                                        <t t-esc="formatCurrency(state.data.kpis.expense)"/>
+                                    </h3>
+                                </div>
+                                <div class="o_kpi_icon_wrapper rounded-circle bg-danger-subtle text-danger d-flex align-items-center justify-content-center">
+                                    <i class="fa fa-shopping-cart fs-4"/>
+                                </div>
+                            </div>
+                            <div class="mt-3 pt-2 border-top d-flex justify-content-between align-items-center small text-muted">
+                                <span>Vendor &amp; Service Costs</span>
+                                <span class="badge bg-danger-subtle text-danger">Cost <i class="fa fa-arrow-right ms-1"/></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Net Margin Card -->
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card o_kpi_card border-0 shadow-sm rounded-3 h-100 p-3 o_kpi_margin"
+                             t-on-click="onMarginClick"
+                             title="Click to view active profitable freight orders">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="text-muted text-uppercase fw-semibold small">Net Margin</span>
+                                    <h3 class="fw-bold mb-0 mt-1 text-info">
+                                        <t t-esc="formatCurrency(state.data.kpis.margin)"/>
+                                    </h3>
+                                </div>
+                                <div class="o_kpi_icon_wrapper rounded-circle bg-info-subtle text-info d-flex align-items-center justify-content-center">
+                                    <i class="fa fa-pie-chart fs-4"/>
+                                </div>
+                            </div>
+                            <div class="mt-3 pt-2 border-top d-flex justify-content-between align-items-center small text-muted">
+                                <span>Profit Margin:</span>
+                                <span class="fw-bold text-info"><t t-esc="state.data.kpis.margin_pct"/>% <i class="fa fa-arrow-right ms-1"/></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Monthly Revenue vs Expense Chart Section -->
+                <div class="card border-0 shadow-sm rounded-3 p-3 p-md-4 mb-4">
+                    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-3">
+                        <div>
+                            <h5 class="fw-bold mb-0 text-dark">
+                                <i class="fa fa-bar-chart text-success me-2"/>Monthly Revenue vs. Expense
+                            </h5>
+                            <p class="text-muted small mb-0">6-Month historical comparative financial performance</p>
+                        </div>
+                        <div class="mt-2 mt-sm-0 d-flex gap-2 align-items-center">
+                            <span class="badge bg-success-subtle text-success px-2 py-1">
+                                <i class="fa fa-square me-1"/>Revenue
+                            </span>
+                            <span class="badge bg-danger-subtle text-danger px-2 py-1">
+                                <i class="fa fa-square me-1"/>Expense
+                            </span>
+                        </div>
+                    </div>
+                    <div class="o_chart_wrapper position-relative" style="height: 320px; width: 100%;">
+                        <canvas t-ref="monthlyChart"/>
+                    </div>
+                </div>
+
+                <!-- 3. Pipeline / Orders by State Section (Interactive Drill-Down) -->
+                <div class="card border-0 shadow-sm rounded-3 p-3 p-md-4 mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h5 class="fw-bold mb-0 text-dark">
+                                <i class="fa fa-sitemap text-primary me-2"/>Orders Pipeline by State
+                            </h5>
+                            <p class="text-muted small mb-0">Click any stage card to filter and open matching shipping orders</p>
+                        </div>
+                        <span class="badge bg-secondary-subtle text-secondary px-3 py-2">
+                            Click to Filter Orders
+                        </span>
+                    </div>
+
+                    <div class="row g-3">
+                        <t t-foreach="Object.keys(state.data.state_labels)" t-as="stateKey" t-key="stateKey">
+                            <t t-set="stateConf" t-value="getStateConfig(stateKey)"/>
+                            <div class="col-6 col-md-4 col-xl-2">
+                                <div class="card border border-light-subtle rounded-3 p-3 h-100 o_state_card text-center"
+                                     t-on-click="() => this.onStateCardClick(stateKey)"
+                                     t-att-title="'Click to view ' + state.data.state_labels[stateKey] + ' orders'">
+                                    <div class="d-inline-flex align-items-center justify-content-center mx-auto mb-2 rounded-circle p-3"
+                                         t-att-class="stateConf.bgClass">
+                                        <i class="fa fs-4" t-att-class="stateConf.icon + ' text-' + stateConf.color"/>
+                                    </div>
+                                    <div class="fw-semibold text-muted small text-truncate">
+                                        <t t-esc="state.data.state_labels[stateKey]"/>
+                                    </div>
+                                    <h4 class="fw-bold mb-0 mt-1" t-att-class="'text-' + stateConf.color">
+                                        <t t-esc="state.data.state_counts[stateKey]"/>
+                                    </h4>
+                                    <span class="small text-muted mt-2 d-block o_hover_view">
+                                        View orders <i class="fa fa-chevron-right ms-1"/>
+                                    </span>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>

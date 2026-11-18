@@ -23,5 +23,5 @@ class FreightServiceLine(models.Model):
         readonly=True,
         index=True,
     )
-    vendor_id = fields.Many2one('res.partner', string='Vendor', required=True)
+    vendor_id = fields.Many2one('res.partner', string='Vendor', required=True, domain="[('company_id', '=', company_id)]")
     sale_price = fields.Float(string='Sale Price', digits=(6,2))

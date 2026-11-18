@@ -14,11 +14,12 @@ class CustomClearance(models.Model):
         required=True,
         ondelete='cascade',
         tracking=True,
+        domain="[('company_id', '=', company_id)]",
     )
     date = fields.Date(string='Date', default=fields.Date.context_today)
-    agent_id = fields.Many2one('res.partner', string='Customs Agent')
-    loading_port_id = fields.Many2one('freight.port', string='Loading Port')
-    discharge_port_id = fields.Many2one('freight.port', string='Discharge Port')
+    agent_id = fields.Many2one('res.partner', string='Customs Agent', domain="[('company_id', '=', company_id)]")
+    loading_port_id = fields.Many2one('freight.port', string='Loading Port', domain="[('company_id', '=', company_id)]")
+    discharge_port_id = fields.Many2one('freight.port', string='Discharge Port', domain="[('company_id', '=', company_id)]")
     company_id = fields.Many2one(
         'res.company',
         string='Company',

@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- ============================================================= -->
+    <!-- 1. Fleet Vehicle Models & Brands                              -->
+    <!-- ============================================================= -->
+    <record id="brand_toyota" model="fleet.vehicle.model.brand">
+        <field name="name">Toyota</field>
+    </record>
+
+    <record id="model_hiace_commuter" model="fleet.vehicle.model">
+        <field name="name">HiAce High-Roof Commuter</field>
+        <field name="brand_id" ref="brand_toyota"/>
+    </record>
+
+    <record id="model_coaster_bus" model="fleet.vehicle.model">
+        <field name="name">Coaster Executive Transit Bus</field>
+        <field name="brand_id" ref="brand_toyota"/>
+    </record>
+
+    <record id="model_corolla_sedan" model="fleet.vehicle.model">
+        <field name="name">Corolla Executive Sedan</field>
+        <field name="brand_id" ref="brand_toyota"/>
+    </record>
+
+    <!-- ============================================================= -->
+    <!-- 2. Fleet Vehicles (fleet.vehicle)                             -->
+    <!-- ============================================================= -->
+    <record id="vehicle_hiace_01" model="fleet.vehicle">
+        <field name="model_id" ref="model_hiace_commuter"/>
+        <field name="license_plate">KHI-VAN-1401</field>
+        <field name="seats">14</field>
+        <field name="seat_capacity_override">14</field>
+        <field name="driver_id" ref="partner_driver_rashid"/>
+        <field name="state_id" ref="fleet.fleet_vehicle_state_registered"/>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="vehicle_coaster_01" model="fleet.vehicle">
+        <field name="model_id" ref="model_coaster_bus"/>
+        <field name="license_plate">KHI-BUS-2801</field>
+        <field name="seats">28</field>
+        <field name="seat_capacity_override">28</field>
+        <field name="driver_id" ref="partner_driver_tariq"/>
+        <field name="state_id" ref="fleet.fleet_vehicle_state_registered"/>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="vehicle_corolla_01" model="fleet.vehicle">
+        <field name="model_id" ref="model_corolla_sedan"/>
+        <field name="license_plate">KHI-SED-5501</field>
+        <field name="seats">4</field>
+        <field name="seat_capacity_override">4</field>
+        <field name="state_id" ref="fleet.fleet_vehicle_state_registered"/>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <!-- ============================================================= -->
+    <!-- 3. Assign Vehicles to Transport Routes                        -->
+    <!-- ============================================================= -->
+    <record id="route_clifton_korangi" model="logistics.transport.route">
+        <field name="vehicle_id" ref="vehicle_hiace_01"/>
+    </record>
+
+    <record id="route_gulshan_portqasim" model="logistics.transport.route">
+        <field name="vehicle_id" ref="vehicle_coaster_01"/>
+    </record>
+
+    <!-- ============================================================= -->
+    <!-- 4. HR Employees Mapped to Transport Routes & Stops            -->
+    <!-- ============================================================= -->
+    <record id="employee_asif_khan" model="hr.employee">
+        <field name="name">Asif Khan</field>
+        <field name="work_email">asif.khan@paklink-logistics.com</field>
+        <field name="work_phone">+92 301 5551001</field>
+        <field name="job_title">Senior Freight Operations Specialist</field>
+        <field name="company_id" ref="company_paklink"/>
+        <field name="transport_enabled">True</field>
+        <field name="transport_route_id" ref="route_clifton_korangi"/>
+        <field name="pickup_stop_id" ref="stop_r01_1"/>
+        <field name="dropoff_stop_id" ref="stop_r01_4"/>
+        <field name="transport_direction">both</field>
+    </record>
+
+    <record id="employee_bilal_ahmed" model="hr.employee">
+        <field name="name">Bilal Ahmed</field>
+        <field name="work_email">bilal.ahmed@paklink-logistics.com</field>
+        <field name="work_phone">+92 302 5551002</field>
+        <field name="job_title">Customs Clearance Documentation Officer</field>
+        <field name="company_id" ref="company_paklink"/>
+        <field name="transport_enabled">True</field>
+        <field name="transport_route_id" ref="route_clifton_korangi"/>
+        <field name="pickup_stop_id" ref="stop_r01_2"/>
+        <field name="dropoff_stop_id" ref="stop_r01_4"/>
+        <field name="transport_direction">both</field>
+    </record>
+
+    <record id="employee_zainab_fatima" model="hr.employee">
+        <field name="name">Zainab Fatima</field>
+        <field name="work_email">zainab.fatima@paklink-logistics.com</field>
+        <field name="work_phone">+92 303 5551003</field>
+        <field name="job_title">Maritime Shipping Controller</field>
+        <field name="company_id" ref="company_paklink"/>
+        <field name="transport_enabled">True</field>
+        <field name="transport_route_id" ref="route_gulshan_portqasim"/>
+        <field name="pickup_stop_id" ref="stop_r02_1"/>
+        <field name="dropoff_stop_id" ref="stop_r02_3"/>
+        <field name="transport_direction">both</field>
+    </record>
+
+    <record id="employee_usman_farooq" model="hr.employee">
+        <field name="name">Usman Farooq</field>
+        <field name="work_email">usman.farooq@paklink-logistics.com</field>
+        <field name="work_phone">+92 304 5551004</field>
+        <field name="job_title">Port Qasim Berth Inspector</field>
+        <field name="company_id" ref="company_paklink"/>
+        <field name="transport_enabled">True</field>
+        <field name="transport_route_id" ref="route_gulshan_portqasim"/>
+        <field name="pickup_stop_id" ref="stop_r02_2"/>
+        <field name="dropoff_stop_id" ref="stop_r02_3"/>
+        <field name="transport_direction">both</field>
+    </record>
+
+    <!-- ============================================================= -->
+    <!-- 5. Operating Transport Schedules (logistics.transport.schedule) -->
+    <!-- ============================================================= -->
+    <record id="schedule_r01_morning" model="logistics.transport.schedule">
+        <field name="route_id" ref="route_clifton_korangi"/>
+        <field name="direction">pickup</field>
+        <field name="departure_time">7.5</field>
+        <field name="arrival_time">8.5</field>
+        <field name="monday">True</field>
+        <field name="tuesday">True</field>
+        <field name="wednesday">True</field>
+        <field name="thursday">True</field>
+        <field name="friday">True</field>
+        <field name="saturday">False</field>
+        <field name="sunday">False</field>
+        <field name="vehicle_id" ref="vehicle_hiace_01"/>
+        <field name="driver_id" ref="partner_driver_rashid"/>
+    </record>
+
+    <record id="schedule_r01_evening" model="logistics.transport.schedule">
+        <field name="route_id" ref="route_clifton_korangi"/>
+        <field name="direction">drop_off</field>
+        <field name="departure_time">17.5</field>
+        <field name="arrival_time">18.5</field>
+        <field name="monday">True</field>
+        <field name="tuesday">True</field>
+        <field name="wednesday">True</field>
+        <field name="thursday">True</field>
+        <field name="friday">True</field>
+        <field name="saturday">False</field>
+        <field name="sunday">False</field>
+        <field name="vehicle_id" ref="vehicle_hiace_01"/>
+        <field name="driver_id" ref="partner_driver_rashid"/>
+    </record>
+
+    <record id="schedule_r02_morning" model="logistics.transport.schedule">
+        <field name="route_id" ref="route_gulshan_portqasim"/>
+        <field name="direction">pickup</field>
+        <field name="departure_time">7.0</field>
+        <field name="arrival_time">8.25</field>
+        <field name="monday">True</field>
+        <field name="tuesday">True</field>
+        <field name="wednesday">True</field>
+        <field name="thursday">True</field>
+        <field name="friday">True</field>
+        <field name="saturday">False</field>
+        <field name="sunday">False</field>
+        <field name="vehicle_id" ref="vehicle_coaster_01"/>
+        <field name="driver_id" ref="partner_driver_tariq"/>
+    </record>
+
+    <!-- ============================================================= -->
+    <!-- 6. Daily Transport Trips & Passenger Attendance               -->
+    <!-- ============================================================= -->
+    <record id="trip_r01_completed" model="logistics.transport.trip">
+        <field name="route_id" ref="route_clifton_korangi"/>
+        <field name="schedule_id" ref="schedule_r01_morning"/>
+        <field name="direction">pickup</field>
+        <field name="vehicle_id" ref="vehicle_hiace_01"/>
+        <field name="driver_id" ref="partner_driver_rashid"/>
+        <field name="company_id" ref="company_paklink"/>
+        <field name="state">completed</field>
+    </record>
+
+    <record id="passenger_trip01_asif" model="logistics.transport.trip.passenger">
+        <field name="trip_id" ref="trip_r01_completed"/>
+        <field name="employee_id" ref="employee_asif_khan"/>
+        <field name="pickup_stop_id" ref="stop_r01_1"/>
+        <field name="dropoff_stop_id" ref="stop_r01_4"/>
+        <field name="status">dropped</field>
+        <field name="notes">Boarded at Clifton HQ Gate 1, Dropped at Korangi Depot.</field>
+    </record>
+
+    <record id="passenger_trip01_bilal" model="logistics.transport.trip.passenger">
+        <field name="trip_id" ref="trip_r01_completed"/>
+        <field name="employee_id" ref="employee_bilal_ahmed"/>
+        <field name="pickup_stop_id" ref="stop_r01_2"/>
+        <field name="dropoff_stop_id" ref="stop_r01_4"/>
+        <field name="status">boarded</field>
+        <field name="notes">Boarded at Defence Phase 2 Interchange.</field>
+    </record>
+
+    <record id="trip_r02_in_progress" model="logistics.transport.trip">
+        <field name="route_id" ref="route_gulshan_portqasim"/>
+        <field name="schedule_id" ref="schedule_r02_morning"/>
+        <field name="direction">pickup</field>
+        <field name="vehicle_id" ref="vehicle_coaster_01"/>
+        <field name="driver_id" ref="partner_driver_tariq"/>
+        <field name="company_id" ref="company_paklink"/>
+        <field name="state">in_progress</field>
+    </record>
+
+    <record id="passenger_trip02_zainab" model="logistics.transport.trip.passenger">
+        <field name="trip_id" ref="trip_r02_in_progress"/>
+        <field name="employee_id" ref="employee_zainab_fatima"/>
+        <field name="pickup_stop_id" ref="stop_r02_1"/>
+        <field name="dropoff_stop_id" ref="stop_r02_3"/>
+        <field name="status">boarded</field>
+        <field name="notes">Boarded at Gulshan Civic Centre Terminal.</field>
+    </record>
+
+    <record id="passenger_trip02_usman" model="logistics.transport.trip.passenger">
+        <field name="trip_id" ref="trip_r02_in_progress"/>
+        <field name="employee_id" ref="employee_usman_farooq"/>
+        <field name="pickup_stop_id" ref="stop_r02_2"/>
+        <field name="dropoff_stop_id" ref="stop_r02_3"/>
+        <field name="status">no_show</field>
+        <field name="notes">Did not arrive at Malir Cantt stop on scheduled time.</field>
+    </record>
+
+    <!-- ============================================================= -->
+    <!-- 7. On-Demand Vehicle Reservation Requests                    -->
+    <!-- ============================================================= -->
+    <record id="vrequest_01_approved" model="logistics.transport.vehicle.request">
+        <field name="employee_id" ref="employee_asif_khan"/>
+        <field name="purpose">Urgent Berth 5 Container Inspection at Port Qasim</field>
+        <field name="date_from">2026-11-20 09:00:00</field>
+        <field name="date_to">2026-11-20 13:00:00</field>
+        <field name="vehicle_id" ref="vehicle_corolla_01"/>
+        <field name="state">approved</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="vrequest_02_submitted" model="logistics.transport.vehicle.request">
+        <field name="employee_id" ref="employee_zainab_fatima"/>
+        <field name="purpose">Customs Regulatory Compliance Meeting at Karachi Port Trust</field>
+        <field name="date_from">2026-11-22 14:00:00</field>
+        <field name="date_to">2026-11-22 17:00:00</field>
+        <field name="vehicle_id" ref="vehicle_corolla_01"/>
+        <field name="state">submitted</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+</odoo>

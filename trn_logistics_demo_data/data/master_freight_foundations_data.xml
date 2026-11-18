@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- ========================================== -->
+    <!-- 1. Ports & Airports (freight.port)         -->
+    <!-- ========================================== -->
+    <record id="port_pkbqm" model="freight.port">
+        <field name="name">Port Muhammad Bin Qasim (Karachi)</field>
+        <field name="code">PKBQM</field>
+        <field name="country_id" ref="base.pk"/>
+        <field name="is_water">True</field>
+        <field name="is_land">True</field>
+        <field name="is_air">False</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="port_aedxb" model="freight.port">
+        <field name="name">Port of Jebel Ali (Dubai)</field>
+        <field name="code">AEDXB</field>
+        <field name="country_id" ref="base.ae"/>
+        <field name="is_water">True</field>
+        <field name="is_land">True</field>
+        <field name="is_air">False</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="port_cnsha" model="freight.port">
+        <field name="name">Port of Shanghai (Yangshan)</field>
+        <field name="code">CNSHA</field>
+        <field name="country_id" ref="base.cn"/>
+        <field name="is_water">True</field>
+        <field name="is_land">False</field>
+        <field name="is_air">False</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="port_nlrtm" model="freight.port">
+        <field name="name">Port of Rotterdam (Maasvlakte)</field>
+        <field name="code">NLRTM</field>
+        <field name="country_id" ref="base.nl"/>
+        <field name="is_water">True</field>
+        <field name="is_land">True</field>
+        <field name="is_air">False</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="port_opkc" model="freight.port">
+        <field name="name">Jinnah International Airport (Cargo)</field>
+        <field name="code">OPKC</field>
+        <field name="country_id" ref="base.pk"/>
+        <field name="is_air">True</field>
+        <field name="is_water">False</field>
+        <field name="is_land">False</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="port_eddf" model="freight.port">
+        <field name="name">Frankfurt Cargo City South</field>
+        <field name="code">EDDF</field>
+        <field name="country_id" ref="base.de"/>
+        <field name="is_air">True</field>
+        <field name="is_water">False</field>
+        <field name="is_land">False</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- 2. Freight Containers (freight.container)  -->
+    <!-- ========================================== -->
+    <record id="container_dry_20ft_01" model="freight.container">
+        <field name="name">Standard Dry Container 20ft (PK-2001)</field>
+        <field name="code">20GP-01</field>
+        <field name="size">20.0</field>
+        <field name="size_unit" ref="uom.product_uom_foot"/>
+        <field name="weight">28000.0</field>
+        <field name="weight_unit" ref="uom.product_uom_kgm"/>
+        <field name="volume">33.2</field>
+        <field name="volume_unit" ref="uom.product_uom_cubic_meter"/>
+        <field name="state">available</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="container_dry_20ft_02" model="freight.container">
+        <field name="name">Standard Dry Container 20ft (PK-2002)</field>
+        <field name="code">20GP-02</field>
+        <field name="size">20.0</field>
+        <field name="size_unit" ref="uom.product_uom_foot"/>
+        <field name="weight">28000.0</field>
+        <field name="weight_unit" ref="uom.product_uom_kgm"/>
+        <field name="volume">33.2</field>
+        <field name="volume_unit" ref="uom.product_uom_cubic_meter"/>
+        <field name="state">available</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="container_dry_40ft_01" model="freight.container">
+        <field name="name">High-Cube Dry Container 40ft (PK-4001)</field>
+        <field name="code">40HC-01</field>
+        <field name="size">40.0</field>
+        <field name="size_unit" ref="uom.product_uom_foot"/>
+        <field name="weight">30480.0</field>
+        <field name="weight_unit" ref="uom.product_uom_kgm"/>
+        <field name="volume">76.4</field>
+        <field name="volume_unit" ref="uom.product_uom_cubic_meter"/>
+        <field name="state">available</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="container_dry_40ft_02" model="freight.container">
+        <field name="name">High-Cube Dry Container 40ft (PK-4002)</field>
+        <field name="code">40HC-02</field>
+        <field name="size">40.0</field>
+        <field name="size_unit" ref="uom.product_uom_foot"/>
+        <field name="weight">30480.0</field>
+        <field name="weight_unit" ref="uom.product_uom_kgm"/>
+        <field name="volume">76.4</field>
+        <field name="volume_unit" ref="uom.product_uom_cubic_meter"/>
+        <field name="state">available</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="container_reefer_40ft_01" model="freight.container">
+        <field name="name">Reefer Cold-Chain Container 40ft (PK-RF01)</field>
+        <field name="code">40RF-01</field>
+        <field name="size">40.0</field>
+        <field name="size_unit" ref="uom.product_uom_foot"/>
+        <field name="weight">29000.0</field>
+        <field name="weight_unit" ref="uom.product_uom_kgm"/>
+        <field name="volume">67.5</field>
+        <field name="volume_unit" ref="uom.product_uom_cubic_meter"/>
+        <field name="state">available</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="container_flat_rack_20ft_01" model="freight.container">
+        <field name="name">Flat-Rack Heavy Equipment 20ft (PK-FR01)</field>
+        <field name="code">20FR-01</field>
+        <field name="size">20.0</field>
+        <field name="size_unit" ref="uom.product_uom_foot"/>
+        <field name="weight">31000.0</field>
+        <field name="weight_unit" ref="uom.product_uom_kgm"/>
+        <field name="volume">28.0</field>
+        <field name="volume_unit" ref="uom.product_uom_cubic_meter"/>
+        <field name="state">available</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- 3. Freight Prices (freight.price)          -->
+    <!-- ========================================== -->
+    <record id="price_standard_ocean" model="freight.price">
+        <field name="name">Standard Maritime Pricing Matrix</field>
+        <field name="volume_price">45.0</field>
+        <field name="weight_price">1.25</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="price_express_air" model="freight.price">
+        <field name="name">Express Air Cargo Pricing Matrix</field>
+        <field name="volume_price">125.0</field>
+        <field name="weight_price">4.50</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="price_cold_chain" model="freight.price">
+        <field name="name">Cold Chain Reefer Pricing Matrix</field>
+        <field name="volume_price">85.0</field>
+        <field name="weight_price">2.80</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- 4. Freight Services (freight.service)      -->
+    <!-- ========================================== -->
+    <record id="service_ocean_fcl" model="freight.service">
+        <field name="name">Ocean Freight FCL - 40HC Shipping</field>
+        <field name="sale_price">1850.00</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="service_line_ocean_fcl_maersk" model="freight.service.line">
+        <field name="service_id" ref="service_ocean_fcl"/>
+        <field name="vendor_id" ref="partner_maersk_line"/>
+        <field name="sale_price">1500.00</field>
+    </record>
+
+    <record id="service_air_cargo" model="freight.service">
+        <field name="name">Priority Air Freight Cargo Transit</field>
+        <field name="sale_price">2600.00</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="service_line_air_emirates" model="freight.service.line">
+        <field name="service_id" ref="service_air_cargo"/>
+        <field name="vendor_id" ref="partner_emirates_sky"/>
+        <field name="sale_price">2100.00</field>
+    </record>
+
+    <record id="service_customs_clearance" model="freight.service">
+        <field name="name">Terminal Customs Inspection &amp; Clearance</field>
+        <field name="sale_price">450.00</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="service_inland_haulage" model="freight.service">
+        <field name="name">Inland Trailer Container Haulage</field>
+        <field name="sale_price">380.00</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- 5. Freight Routes (freight.routes)         -->
+    <!-- ========================================== -->
+    <record id="froute_khi_dxb" model="freight.routes">
+        <field name="name">Karachi (PKBQM) - Dubai (AEDXB) Maritime Corridor</field>
+        <field name="water_price">1250.00</field>
+        <field name="air_price">2200.00</field>
+        <field name="land_price">0.0</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="froute_khi_sha" model="freight.routes">
+        <field name="name">Karachi (PKBQM) - Shanghai (CNSHA) Far East Lane</field>
+        <field name="water_price">1950.00</field>
+        <field name="air_price">3600.00</field>
+        <field name="land_price">0.0</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="froute_khi_fra" model="freight.routes">
+        <field name="name">Karachi (OPKC) - Frankfurt (EDDF) European Air Express</field>
+        <field name="air_price">3400.00</field>
+        <field name="water_price">0.0</field>
+        <field name="land_price">0.0</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- 6. Demo Goods / Products (product.product) -->
+    <!-- ========================================== -->
+    <record id="product_denim_fabric" model="product.product">
+        <field name="name">Export Grade Denim Fabric Rolls</field>
+        <field name="type">consu</field>
+        <field name="list_price">45.0</field>
+    </record>
+
+    <record id="product_basmati_rice" model="product.product">
+        <field name="name">Premium Super Kernel Basmati Rice (25kg Bag)</field>
+        <field name="type">consu</field>
+        <field name="list_price">38.0</field>
+    </record>
+
+    <record id="product_pharma_vaccines" model="product.product">
+        <field name="name">Cold Chain Sterile Injectable Ampoules</field>
+        <field name="type">consu</field>
+        <field name="list_price">120.0</field>
+    </record>
+</odoo>

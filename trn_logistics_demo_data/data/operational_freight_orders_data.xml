@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- ============================================================= -->
+    <!-- ORDER 1: Ocean Export to Shanghai (State: DRAFT)              -->
+    <!-- ============================================================= -->
+    <record id="order_01_draft" model="freight.shipping">
+        <field name="shipper_id" ref="partner_indus_textile"/>
+        <field name="consignee_id" ref="partner_shanghai_silk"/>
+        <field name="agent_id" ref="partner_shanghai_silk"/>
+        <field name="shipping_type">export</field>
+        <field name="transport">water</field>
+        <field name="water_type">fcl</field>
+        <field name="loading_port_id" ref="port_pkbqm"/>
+        <field name="discharge_port_id" ref="port_cnsha"/>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="cargo_order_01" model="freight.cargo.line">
+        <field name="shipping_id" ref="order_01_draft"/>
+        <field name="container_id" ref="container_dry_40ft_01"/>
+        <field name="product_id" ref="product_denim_fabric"/>
+        <field name="billing_on">weight</field>
+        <field name="weight">18500.0</field>
+        <field name="volume">55.0</field>
+        <field name="unit_price">2.50</field>
+    </record>
+
+    <record id="route_order_01" model="freight.route.line">
+        <field name="shipping_id" ref="order_01_draft"/>
+        <field name="route_id" ref="froute_khi_sha"/>
+        <field name="source_port_id" ref="port_pkbqm"/>
+        <field name="destination_port_id" ref="port_cnsha"/>
+        <field name="transport">water</field>
+        <field name="sale_price">1950.00</field>
+    </record>
+
+    <record id="service_order_01" model="freight.order.service">
+        <field name="shipping_id" ref="order_01_draft"/>
+        <field name="service_id" ref="service_ocean_fcl"/>
+        <field name="vendor_id" ref="partner_maersk_line"/>
+        <field name="quantity">1.0</field>
+        <field name="sale">1850.00</field>
+    </record>
+
+    <record id="clearance_order_01" model="custom.clearance">
+        <field name="shipping_id" ref="order_01_draft"/>
+        <field name="agent_id" ref="partner_shanghai_silk"/>
+        <field name="loading_port_id" ref="port_pkbqm"/>
+        <field name="discharge_port_id" ref="port_cnsha"/>
+        <field name="company_id" ref="company_paklink"/>
+        <field name="state">draft</field>
+    </record>
+
+    <!-- ============================================================= -->
+    <!-- ORDER 2: Ocean Export to Dubai (State: SUBMITTED)             -->
+    <!-- ============================================================= -->
+    <record id="order_02_submitted" model="freight.shipping">
+        <field name="shipper_id" ref="partner_khyber_agro"/>
+        <field name="consignee_id" ref="partner_dubai_trade"/>
+        <field name="agent_id" ref="partner_dubai_trade"/>
+        <field name="shipping_type">export</field>
+        <field name="transport">water</field>
+        <field name="water_type">fcl</field>
+        <field name="loading_port_id" ref="port_pkbqm"/>
+        <field name="discharge_port_id" ref="port_aedxb"/>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="cargo_order_02" model="freight.cargo.line">
+        <field name="shipping_id" ref="order_02_submitted"/>
+        <field name="container_id" ref="container_dry_20ft_01"/>
+        <field name="product_id" ref="product_basmati_rice"/>
+        <field name="billing_on">weight</field>
+        <field name="weight">22000.0</field>
+        <field name="volume">28.0</field>
+        <field name="unit_price">1.50</field>
+    </record>
+
+    <record id="route_order_02" model="freight.route.line">
+        <field name="shipping_id" ref="order_02_submitted"/>
+        <field name="route_id" ref="froute_khi_dxb"/>
+        <field name="source_port_id" ref="port_pkbqm"/>
+        <field name="destination_port_id" ref="port_aedxb"/>
+        <field name="transport">water</field>
+        <field name="sale_price">1250.00</field>
+    </record>
+
+    <record id="clearance_order_02" model="custom.clearance">
+        <field name="shipping_id" ref="order_02_submitted"/>
+        <field name="agent_id" ref="partner_dubai_trade"/>
+        <field name="loading_port_id" ref="port_pkbqm"/>
+        <field name="discharge_port_id" ref="port_aedxb"/>
+        <field name="company_id" ref="company_paklink"/>
+        <field name="state">draft</field>
+    </record>
+
+    <!-- ============================================================= -->
+    <!-- ORDER 3: Reefer Cold Chain to Rotterdam (State: CONFIRMED)    -->
+    <!-- ============================================================= -->
+    <record id="order_03_confirmed" model="freight.shipping">
+        <field name="shipper_id" ref="partner_alkaram_pharma"/>
+        <field name="consignee_id" ref="partner_rotterdam_dist"/>
+        <field name="agent_id" ref="partner_rotterdam_dist"/>
+        <field name="shipping_type">export</field>
+        <field name="transport">water</field>
+        <field name="water_type">fcl</field>
+        <field name="loading_port_id" ref="port_pkbqm"/>
+        <field name="discharge_port_id" ref="port_nlrtm"/>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="cargo_order_03" model="freight.cargo.line">
+        <field name="shipping_id" ref="order_03_confirmed"/>
+        <field name="container_id" ref="container_reefer_40ft_01"/>
+        <field name="product_id" ref="product_pharma_vaccines"/>
+        <field name="billing_on">volume</field>
+        <field name="weight">12000.0</field>
+        <field name="volume">45.0</field>
+        <field name="unit_price">45.00</field>
+    </record>
+
+    <record id="route_order_03" model="freight.route.line">
+        <field name="shipping_id" ref="order_03_confirmed"/>
+        <field name="route_id" ref="froute_khi_sha"/>
+        <field name="source_port_id" ref="port_pkbqm"/>
+        <field name="destination_port_id" ref="port_nlrtm"/>
+        <field name="transport">water</field>
+        <field name="sale_price">2400.00</field>
+    </record>
+
+    <record id="clearance_order_03" model="custom.clearance">
+        <field name="shipping_id" ref="order_03_confirmed"/>
+        <field name="agent_id" ref="partner_rotterdam_dist"/>
+        <field name="loading_port_id" ref="port_pkbqm"/>
+        <field name="discharge_port_id" ref="port_nlrtm"/>
+        <field name="company_id" ref="company_paklink"/>
+        <field name="state">draft</field>
+    </record>
+
+    <record id="track_order_03_1" model="freight.track">
+        <field name="shipping_id" ref="order_03_confirmed"/>
+        <field name="source_port_id" ref="port_pkbqm"/>
+        <field name="destination_port_id" ref="port_nlrtm"/>
+        <field name="transport">water</field>
+        <field name="received_delivered">received</field>
+    </record>
+
+    <!-- ============================================================= -->
+    <!-- ORDER 4: Heavy Denim to Dubai (State: INVOICED)               -->
+    <!-- ============================================================= -->
+    <record id="order_04_invoiced" model="freight.shipping">
+        <field name="shipper_id" ref="partner_indus_textile"/>
+        <field name="consignee_id" ref="partner_dubai_trade"/>
+        <field name="agent_id" ref="partner_dubai_trade"/>
+        <field name="shipping_type">export</field>
+        <field name="transport">water</field>
+        <field name="water_type">fcl</field>
+        <field name="loading_port_id" ref="port_pkbqm"/>
+        <field name="discharge_port_id" ref="port_aedxb"/>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="cargo_order_04" model="freight.cargo.line">
+        <field name="shipping_id" ref="order_04_invoiced"/>
+        <field name="container_id" ref="container_dry_40ft_02"/>
+        <field name="product_id" ref="product_denim_fabric"/>
+        <field name="billing_on">weight</field>
+        <field name="weight">24000.0</field>
+        <field name="volume">62.0</field>
+        <field name="unit_price">2.80</field>
+    </record>
+
+    <record id="route_order_04" model="freight.route.line">
+        <field name="shipping_id" ref="order_04_invoiced"/>
+        <field name="route_id" ref="froute_khi_dxb"/>
+        <field name="source_port_id" ref="port_pkbqm"/>
+        <field name="destination_port_id" ref="port_aedxb"/>
+        <field name="transport">water</field>
+        <field name="sale_price">1250.00</field>
+    </record>
+
+    <record id="service_order_04" model="freight.order.service">
+        <field name="shipping_id" ref="order_04_invoiced"/>
+        <field name="service_id" ref="service_ocean_fcl"/>
+        <field name="vendor_id" ref="partner_maersk_line"/>
+        <field name="quantity">1.0</field>
+        <field name="sale">1850.00</field>
+    </record>
+
+    <record id="clearance_order_04" model="custom.clearance">
+        <field name="shipping_id" ref="order_04_invoiced"/>
+        <field name="agent_id" ref="partner_dubai_trade"/>
+        <field name="loading_port_id" ref="port_pkbqm"/>
+        <field name="discharge_port_id" ref="port_aedxb"/>
+        <field name="company_id" ref="company_paklink"/>
+        <field name="state">draft</field>
+    </record>
+
+    <record id="track_order_04_1" model="freight.track">
+        <field name="shipping_id" ref="order_04_invoiced"/>
+        <field name="source_port_id" ref="port_pkbqm"/>
+        <field name="destination_port_id" ref="port_aedxb"/>
+        <field name="transport">water</field>
+        <field name="received_delivered">received</field>
+    </record>
+
+    <!-- ============================================================= -->
+    <!-- ORDER 5: Air Express to Frankfurt (State: DONE)               -->
+    <!-- ============================================================= -->
+    <record id="order_05_done" model="freight.shipping">
+        <field name="shipper_id" ref="partner_khyber_agro"/>
+        <field name="consignee_id" ref="partner_rotterdam_dist"/>
+        <field name="agent_id" ref="partner_rotterdam_dist"/>
+        <field name="shipping_type">export</field>
+        <field name="transport">air</field>
+        <field name="loading_port_id" ref="port_opkc"/>
+        <field name="discharge_port_id" ref="port_eddf"/>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="cargo_order_05" model="freight.cargo.line">
+        <field name="shipping_id" ref="order_05_done"/>
+        <field name="product_id" ref="product_basmati_rice"/>
+        <field name="billing_on">weight</field>
+        <field name="weight">4500.0</field>
+        <field name="volume">12.0</field>
+        <field name="unit_price">5.50</field>
+    </record>
+
+    <record id="route_order_05" model="freight.route.line">
+        <field name="shipping_id" ref="order_05_done"/>
+        <field name="route_id" ref="froute_khi_fra"/>
+        <field name="source_port_id" ref="port_opkc"/>
+        <field name="destination_port_id" ref="port_eddf"/>
+        <field name="transport">air</field>
+        <field name="sale_price">3400.00</field>
+    </record>
+
+    <record id="service_order_05" model="freight.order.service">
+        <field name="shipping_id" ref="order_05_done"/>
+        <field name="service_id" ref="service_air_cargo"/>
+        <field name="vendor_id" ref="partner_emirates_sky"/>
+        <field name="quantity">1.0</field>
+        <field name="sale">2600.00</field>
+    </record>
+
+    <record id="clearance_order_05" model="custom.clearance">
+        <field name="shipping_id" ref="order_05_done"/>
+        <field name="agent_id" ref="partner_rotterdam_dist"/>
+        <field name="loading_port_id" ref="port_opkc"/>
+        <field name="discharge_port_id" ref="port_eddf"/>
+        <field name="company_id" ref="company_paklink"/>
+        <field name="state">draft</field>
+    </record>
+
+    <record id="track_order_05_1" model="freight.track">
+        <field name="shipping_id" ref="order_05_done"/>
+        <field name="source_port_id" ref="port_opkc"/>
+        <field name="destination_port_id" ref="port_eddf"/>
+        <field name="transport">air</field>
+        <field name="received_delivered">received</field>
+    </record>
+
+    <record id="track_order_05_2" model="freight.track">
+        <field name="shipping_id" ref="order_05_done"/>
+        <field name="source_port_id" ref="port_opkc"/>
+        <field name="destination_port_id" ref="port_eddf"/>
+        <field name="transport">air</field>
+        <field name="received_delivered">delivered</field>
+    </record>
+
+    <!-- ============================================================= -->
+    <!-- ORDER 6: Special Reagents to Shanghai (State: CANCELLED)     -->
+    <!-- ============================================================= -->
+    <record id="order_06_cancelled" model="freight.shipping">
+        <field name="shipper_id" ref="partner_alkaram_pharma"/>
+        <field name="consignee_id" ref="partner_shanghai_silk"/>
+        <field name="agent_id" ref="partner_shanghai_silk"/>
+        <field name="shipping_type">export</field>
+        <field name="transport">water</field>
+        <field name="water_type">fcl</field>
+        <field name="loading_port_id" ref="port_pkbqm"/>
+        <field name="discharge_port_id" ref="port_cnsha"/>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="cargo_order_06" model="freight.cargo.line">
+        <field name="shipping_id" ref="order_06_cancelled"/>
+        <field name="container_id" ref="container_dry_20ft_02"/>
+        <field name="product_id" ref="product_pharma_vaccines"/>
+        <field name="billing_on">weight</field>
+        <field name="weight">5000.0</field>
+        <field name="volume">15.0</field>
+        <field name="unit_price">4.00</field>
+    </record>
+
+    <record id="route_order_06" model="freight.route.line">
+        <field name="shipping_id" ref="order_06_cancelled"/>
+        <field name="route_id" ref="froute_khi_sha"/>
+        <field name="source_port_id" ref="port_pkbqm"/>
+        <field name="destination_port_id" ref="port_cnsha"/>
+        <field name="transport">water</field>
+        <field name="sale_price">1950.00</field>
+    </record>
+</odoo>

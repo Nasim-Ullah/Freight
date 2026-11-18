@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- ========================================== -->
+    <!-- 1. Transit Stop Address Locations           -->
+    <!-- ========================================== -->
+    <record id="partner_loc_clifton_hq" model="res.partner">
+        <field name="name">Clifton HQ Executive Gate</field>
+        <field name="street">Block 5, Clifton</field>
+        <field name="city">Karachi</field>
+        <field name="country_id" ref="base.pk"/>
+        <field name="partner_latitude">24.8138</field>
+        <field name="partner_longitude">67.0305</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="partner_loc_defence_ph2" model="res.partner">
+        <field name="name">Defence Phase 2 Interchange</field>
+        <field name="street">Sunset Boulevard, DHA Phase 2</field>
+        <field name="city">Karachi</field>
+        <field name="country_id" ref="base.pk"/>
+        <field name="partner_latitude">24.8387</field>
+        <field name="partner_longitude">67.0673</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="partner_loc_korangi_crossing" model="res.partner">
+        <field name="name">Korangi Crossing Station</field>
+        <field name="street">Main Korangi Road</field>
+        <field name="city">Karachi</field>
+        <field name="country_id" ref="base.pk"/>
+        <field name="partner_latitude">24.8211</field>
+        <field name="partner_longitude">67.1124</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="partner_loc_korangi_park" model="res.partner">
+        <field name="name">Korangi Creek Logistics Depot</field>
+        <field name="street">Plot 12, Korangi Creek Industrial Park</field>
+        <field name="city">Karachi</field>
+        <field name="country_id" ref="base.pk"/>
+        <field name="partner_latitude">24.8041</field>
+        <field name="partner_longitude">67.1260</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="partner_loc_gulshan_civic" model="res.partner">
+        <field name="name">Gulshan Civic Centre Terminal</field>
+        <field name="street">University Road, Block 14, Gulshan-e-Iqbal</field>
+        <field name="city">Karachi</field>
+        <field name="country_id" ref="base.pk"/>
+        <field name="partner_latitude">24.9180</field>
+        <field name="partner_longitude">67.0971</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="partner_loc_malir_cantt" model="res.partner">
+        <field name="name">Malir Cantt Checkpost Gate 5</field>
+        <field name="street">Malir Cantt Road</field>
+        <field name="city">Karachi</field>
+        <field name="country_id" ref="base.pk"/>
+        <field name="partner_latitude">24.9312</field>
+        <field name="partner_longitude">67.1990</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="partner_loc_port_qasim" model="res.partner">
+        <field name="name">Port Qasim Logistics Berth Terminal</field>
+        <field name="street">Berth 5 Terminal Gate, Bin Qasim</field>
+        <field name="city">Karachi</field>
+        <field name="country_id" ref="base.pk"/>
+        <field name="partner_latitude">24.7833</field>
+        <field name="partner_longitude">67.3333</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- 2. Staff Transport Routes (logistics.transport.route) -->
+    <!-- ========================================== -->
+    <record id="route_clifton_korangi" model="logistics.transport.route">
+        <field name="name">Route R-01: Clifton HQ - Korangi Industrial</field>
+        <field name="code">R-01</field>
+        <field name="direction">both</field>
+        <field name="driver_id" ref="partner_driver_rashid"/>
+        <field name="start_address_id" ref="partner_loc_clifton_hq"/>
+        <field name="end_address_id" ref="partner_loc_korangi_park"/>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="route_gulshan_portqasim" model="logistics.transport.route">
+        <field name="name">Route R-02: Gulshan - Port Qasim Berth</field>
+        <field name="code">R-02</field>
+        <field name="direction">both</field>
+        <field name="driver_id" ref="partner_driver_tariq"/>
+        <field name="start_address_id" ref="partner_loc_gulshan_civic"/>
+        <field name="end_address_id" ref="partner_loc_port_qasim"/>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- 3. Stops for Route R-01                    -->
+    <!-- ========================================== -->
+    <record id="stop_r01_1" model="logistics.transport.stop">
+        <field name="name">Clifton HQ Gate 1</field>
+        <field name="sequence">10</field>
+        <field name="route_id" ref="route_clifton_korangi"/>
+        <field name="address_id" ref="partner_loc_clifton_hq"/>
+        <field name="planned_time">7.5</field>
+        <field name="stop_type">pickup</field>
+        <field name="notes">Primary corporate morning assembly point.</field>
+    </record>
+
+    <record id="stop_r01_2" model="logistics.transport.stop">
+        <field name="name">Defence Phase 2 Interchange</field>
+        <field name="sequence">20</field>
+        <field name="route_id" ref="route_clifton_korangi"/>
+        <field name="address_id" ref="partner_loc_defence_ph2"/>
+        <field name="planned_time">7.75</field>
+        <field name="stop_type">both</field>
+        <field name="notes">Midpoint transit stop for DHA staff.</field>
+    </record>
+
+    <record id="stop_r01_3" model="logistics.transport.stop">
+        <field name="name">Korangi Crossing Station</field>
+        <field name="sequence">30</field>
+        <field name="route_id" ref="route_clifton_korangi"/>
+        <field name="address_id" ref="partner_loc_korangi_crossing"/>
+        <field name="planned_time">8.0</field>
+        <field name="stop_type">both</field>
+        <field name="notes">Industrial junction boarding/drop stop.</field>
+    </record>
+
+    <record id="stop_r01_4" model="logistics.transport.stop">
+        <field name="name">Korangi Creek Depot</field>
+        <field name="sequence">40</field>
+        <field name="route_id" ref="route_clifton_korangi"/>
+        <field name="address_id" ref="partner_loc_korangi_park"/>
+        <field name="planned_time">8.25</field>
+        <field name="stop_type">drop_off</field>
+        <field name="notes">End destination terminal.</field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- 4. Stops for Route R-02                    -->
+    <!-- ========================================== -->
+    <record id="stop_r02_1" model="logistics.transport.stop">
+        <field name="name">Gulshan Civic Centre Terminal</field>
+        <field name="sequence">10</field>
+        <field name="route_id" ref="route_gulshan_portqasim"/>
+        <field name="address_id" ref="partner_loc_gulshan_civic"/>
+        <field name="planned_time">7.0</field>
+        <field name="stop_type">pickup</field>
+        <field name="notes">North Karachi main staff assembly point.</field>
+    </record>
+
+    <record id="stop_r02_2" model="logistics.transport.stop">
+        <field name="name">Malir Cantt Checkpost</field>
+        <field name="sequence">20</field>
+        <field name="route_id" ref="route_gulshan_portqasim"/>
+        <field name="address_id" ref="partner_loc_malir_cantt"/>
+        <field name="planned_time">7.5</field>
+        <field name="stop_type">both</field>
+        <field name="notes">Highway bypass commuter stop.</field>
+    </record>
+
+    <record id="stop_r02_3" model="logistics.transport.stop">
+        <field name="name">Port Qasim Berth Terminal</field>
+        <field name="sequence">30</field>
+        <field name="route_id" ref="route_gulshan_portqasim"/>
+        <field name="address_id" ref="partner_loc_port_qasim"/>
+        <field name="planned_time">8.25</field>
+        <field name="stop_type">drop_off</field>
+        <field name="notes">Berth operations and shipping clearance office terminal.</field>
+    </record>
+</odoo>

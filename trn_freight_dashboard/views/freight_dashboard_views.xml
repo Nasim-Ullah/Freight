@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Freight Dashboard Client Action -->
+    <record id="action_freight_dashboard" model="ir.actions.client">
+        <field name="name">Dashboard</field>
+        <field name="tag">trn_freight_dashboard.dashboard</field>
+    </record>
+
+    <!-- First Menu item under Freight Root Menu -->
+    <menuitem id="menu_freight_dashboard"
+              name="Dashboard"
+              parent="trn_freight.menu_freight_root"
+              action="action_freight_dashboard"
+              sequence="1"/>
+</odoo>

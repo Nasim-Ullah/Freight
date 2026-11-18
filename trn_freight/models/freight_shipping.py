@@ -15,9 +15,21 @@ class FreightShipping(models.Model):
 
     name = fields.Char(string='New', required=True, copy=False, readonly=True, default='New')
 
-    shipper_id = fields.Many2one('res.partner', string='Shipper')
-    consignee_id = fields.Many2one('res.partner', string='Consignee')
-    agent_id = fields.Many2one('res.partner', string='Agent')
+    shipper_id = fields.Many2one(
+        'res.partner',
+        string='Shipper',
+        domain="[('company_id', '=', company_id), ('is_company', '=', True)]",
+    )
+    consignee_id = fields.Many2one(
+        'res.partner',
+        string='Consignee',
+        domain="[('company_id', '=', company_id), ('is_company', '=', True)]",
+    )
+    agent_id = fields.Many2one(
+        'res.partner',
+        string='Agent',
+        domain="[('company_id', '=', company_id)]",
+    )
     shipping_type = fields.Selection([
         ('import', 'Import'),
         ('export', 'Export'),
@@ -60,12 +72,12 @@ class FreightShipping(models.Model):
     loading_port_id = fields.Many2one(
         'freight.port',
         string='Loading Port',
-        domain="[('is_air', '=', True)] if transport == 'air' else [('is_water', '=', True)] if transport == 'water' else [('is_land', '=', True)] if transport == 'land' else []",
+        domain="[('company_id', '=', company_id)] + ([('is_air', '=', True)] if transport == 'air' else [('is_water', '=', True)] if transport == 'water' else [('is_land', '=', True)] if transport == 'land' else [])",
     )
     discharge_port_id = fields.Many2one(
         'freight.port',
         string='Discharging Port',
-        domain="[('is_air', '=', True)] if transport == 'air' else [('is_water', '=', True)] if transport == 'water' else [('is_land', '=', True)] if transport == 'land' else []",
+        domain="[('company_id', '=', company_id)] + ([('is_air', '=', True)] if transport == 'air' else [('is_water', '=', True)] if transport == 'water' else [('is_land', '=', True)] if transport == 'land' else [])",
     )
 
     # work flow state and action buttons
@@ -122,7 +134,7 @@ class FreightShipping(models.Model):
 
     def action_cancel(self):
         for record in self:
-            record.state = 'cancelled'
+            record.state = 'cancel'
             containers = record.cargo_line_ids.mapped('container_id')
             if containers:
                 containers.write({'state': 'available'})
@@ -360,6 +372,21 @@ class FreightShipping(models.Model):
                 elif order.transport == 'water' and not port.is_water:
                     raise ValidationError(f"The port '{port.name}' does not support the selected transport type '{order.transport}'.")
 
+    @api.onchange('company_id')
+    def _onchange_company_id(self):
+        """Reset relations if they do not match the new company."""
+        if self.company_id:
+            if self.shipper_id and self.shipper_id.company_id and self.shipper_id.company_id != self.company_id:
+                self.shipper_id = False
+            if self.consignee_id and self.consignee_id.company_id and self.consignee_id.company_id != self.company_id:
+                self.consignee_id = False
+            if self.agent_id and self.agent_id.company_id and self.agent_id.company_id != self.company_id:
+                self.agent_id = False
+            if self.loading_port_id and self.loading_port_id.company_id and self.loading_port_id.company_id != self.company_id:
+                self.loading_port_id = False
+            if self.discharge_port_id and self.discharge_port_id.company_id and self.discharge_port_id.company_id != self.company_id:
+                self.discharge_port_id = False
+
     @api.onchange('transport')
     def _onchange_transport(self):
         """Automatically clear loading and discharge ports when transport mode changes,
@@ -372,12 +399,15 @@ class FreightShipping(models.Model):
             self.water_type = False
 
         domain = []
+        if self.company_id:
+            domain.append(('company_id', '=', self.company_id.id))
+
         if self.transport == 'land':
-            domain = [('is_land', '=', True)]
+            domain.append(('is_land', '=', True))
         elif self.transport == 'air':
-            domain = [('is_air', '=', True)]
+            domain.append(('is_air', '=', True))
         elif self.transport == 'water':
-            domain = [('is_water', '=', True)]
+            domain.append(('is_water', '=', True))
 
         return {
             'domain': {
@@ -406,7 +436,7 @@ class FreightCargoLine(models.Model):
         related='company_id.currency_id',
         readonly=True,
     )
-    container_id = fields.Many2one('freight.container', string='Container')
+    container_id = fields.Many2one('freight.container', string='Container', domain="[('company_id', '=', company_id)]")
     product_id = fields.Many2one('product.product', string='Goods')
     billing_on = fields.Selection([
         ('weight', 'Weight'),
@@ -481,9 +511,9 @@ class FreightRouteLine(models.Model):
         related='company_id.currency_id',
         readonly=True,
     )
-    route_id = fields.Many2one('freight.routes', string='Route', required=True)
-    source_port_id = fields.Many2one('freight.port', string='Source Location')
-    destination_port_id = fields.Many2one('freight.port', string='Destination Location')
+    route_id = fields.Many2one('freight.routes', string='Route', required=True, domain="[('company_id', '=', company_id)]")
+    source_port_id = fields.Many2one('freight.port', string='Source Location', domain="[('company_id', '=', company_id)]")
+    destination_port_id = fields.Many2one('freight.port', string='Destination Location', domain="[('company_id', '=', company_id)]")
     transport = fields.Selection([
         ('land', 'Land'),
         ('air', 'Air'),
@@ -546,8 +576,8 @@ class FreightOrderService(models.Model):
         related='company_id.currency_id',
         readonly=True,
     )
-    service_id = fields.Many2one('freight.service', string='Service', required=True)
-    vendor_id = fields.Many2one('res.partner', string='Vendor')
+    service_id = fields.Many2one('freight.service', string='Service', required=True, domain="[('company_id', '=', company_id)]")
+    vendor_id = fields.Many2one('res.partner', string='Vendor', domain="[('company_id', '=', company_id)]")
     quantity = fields.Float(string='Quantity', default=0.0)
     sale = fields.Float(string='Sale')
     total_sale = fields.Float(string='Total Sale', compute='_compute_total_sale', store=True)
@@ -598,8 +628,8 @@ class FreightTrack(models.Model):
         related='company_id.currency_id',
         readonly=True,
     )
-    source_port_id = fields.Many2one('freight.port', string='Source Location', required=True)
-    destination_port_id = fields.Many2one('freight.port', string='Destination Location', required=True)
+    source_port_id = fields.Many2one('freight.port', string='Source Location', required=True, domain="[('company_id', '=', company_id)]")
+    destination_port_id = fields.Many2one('freight.port', string='Destination Location', required=True, domain="[('company_id', '=', company_id)]")
     transport = fields.Selection([
         ('land', 'Land'),
         ('air', 'Air'),

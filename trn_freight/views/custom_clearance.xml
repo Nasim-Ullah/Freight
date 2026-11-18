@@ -26,13 +26,13 @@
                     </div>
                     <group>
                         <group>
-                            <field name="shipping_id" readonly="state != 'draft'"/>
+                            <field name="shipping_id" readonly="state != 'draft'" domain="[('company_id', '=', company_id)]"/>
                             <field name="date" readonly="state != 'draft'"/>
-                            <field name="agent_id" readonly="state != 'draft'"/>
+                            <field name="agent_id" readonly="state != 'draft'" domain="[('company_id', '=', company_id)]"/>
                         </group>
                         <group>
-                            <field name="loading_port_id" readonly="state != 'draft'"/>
-                            <field name="discharge_port_id" readonly="state != 'draft'"/>
+                            <field name="loading_port_id" readonly="state != 'draft'" domain="[('company_id', '=', company_id)]"/>
+                            <field name="discharge_port_id" readonly="state != 'draft'" domain="[('company_id', '=', company_id)]"/>
                             <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
                         </group>
                     </group>

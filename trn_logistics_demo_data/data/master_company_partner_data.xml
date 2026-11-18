@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- ========================================== -->
+    <!-- 1. Enterprise Company: PakLink Logistics    -->
+    <!-- ========================================== -->
+    <record id="company_paklink" model="res.company">
+        <field name="name">PakLink Logistics Pvt Ltd</field>
+        <field name="currency_id" ref="base.USD"/>
+        <field name="street">Berth 5, Port Qasim Industrial Corridor</field>
+        <field name="city">Karachi</field>
+        <field name="zip">75020</field>
+        <field name="country_id" ref="base.pk"/>
+        <field name="email">operations@paklink-logistics.com</field>
+        <field name="phone">+92 21 34720100</field>
+        <field name="website">https://www.paklink-logistics.com</field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- 2. Shippers / Corporate Clients             -->
+    <!-- ========================================== -->
+    <record id="partner_indus_textile" model="res.partner">
+        <field name="name">Indus Textile Mills Ltd</field>
+        <field name="is_company">True</field>
+        <field name="company_type">company</field>
+        <field name="street">Plot 45, Sector 15, Korangi Industrial Area</field>
+        <field name="city">Karachi</field>
+        <field name="country_id" ref="base.pk"/>
+        <field name="email">supplychain@industextile.pk</field>
+        <field name="phone">+92 21 35061122</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="partner_khyber_agro" model="res.partner">
+        <field name="name">Khyber Agro Exports Ltd</field>
+        <field name="is_company">True</field>
+        <field name="company_type">company</field>
+        <field name="street">Industrial Estate, Jamrud Road</field>
+        <field name="city">Peshawar</field>
+        <field name="country_id" ref="base.pk"/>
+        <field name="email">exports@khyberagro.com</field>
+        <field name="phone">+92 91 5843210</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="partner_alkaram_pharma" model="res.partner">
+        <field name="name">Al-Karam Pharma Corp</field>
+        <field name="is_company">True</field>
+        <field name="company_type">company</field>
+        <field name="street">B-22 SITE Area</field>
+        <field name="city">Karachi</field>
+        <field name="country_id" ref="base.pk"/>
+        <field name="email">logistics@alkarampharma.pk</field>
+        <field name="phone">+92 21 32578901</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- 3. International Consignees & Agents       -->
+    <!-- ========================================== -->
+    <record id="partner_dubai_trade" model="res.partner">
+        <field name="name">Gulf Oceanic Trading LLC</field>
+        <field name="is_company">True</field>
+        <field name="company_type">company</field>
+        <field name="street">Al Quoz Industrial Area 3</field>
+        <field name="city">Dubai</field>
+        <field name="country_id" ref="base.ae"/>
+        <field name="email">receiving@gulfoceanic.ae</field>
+        <field name="phone">+971 4 3389012</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="partner_shanghai_silk" model="res.partner">
+        <field name="name">Shanghai Dragon Silk Import Co</field>
+        <field name="is_company">True</field>
+        <field name="company_type">company</field>
+        <field name="street">Pudong New Area, Century Avenue</field>
+        <field name="city">Shanghai</field>
+        <field name="country_id" ref="base.cn"/>
+        <field name="email">import@dragonsilk.cn</field>
+        <field name="phone">+86 21 68881234</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="partner_rotterdam_dist" model="res.partner">
+        <field name="name">EuroLogistics Rotterdam B.V.</field>
+        <field name="is_company">True</field>
+        <field name="company_type">company</field>
+        <field name="street">Waalhaven Zuidzijde 21</field>
+        <field name="city">Rotterdam</field>
+        <field name="country_id" ref="base.nl"/>
+        <field name="email">dispatch@eurologistics.nl</field>
+        <field name="phone">+31 10 4298700</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- 4. Freight Vendors / Carriers             -->
+    <!-- ========================================== -->
+    <record id="partner_maersk_line" model="res.partner">
+        <field name="name">Maersk Line Pakistan</field>
+        <field name="is_company">True</field>
+        <field name="company_type">company</field>
+        <field name="street">Bahria Complex IV, MT Khan Road</field>
+        <field name="city">Karachi</field>
+        <field name="country_id" ref="base.pk"/>
+        <field name="email">bookings@maersk.pk</field>
+        <field name="phone">+92 21 111623775</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="partner_emirates_sky" model="res.partner">
+        <field name="name">Emirates SkyCargo Pakistan</field>
+        <field name="is_company">True</field>
+        <field name="company_type">company</field>
+        <field name="street">Cargo Village, Jinnah International Airport</field>
+        <field name="city">Karachi</field>
+        <field name="country_id" ref="base.pk"/>
+        <field name="email">skycargo.khi@emirates.com</field>
+        <field name="phone">+92 21 34570021</field>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- 5. Staff Transport Drivers                -->
+    <!-- ========================================== -->
+    <record id="partner_driver_rashid" model="res.partner">
+        <field name="name">Rashid Mehmood</field>
+        <field name="is_driver">True</field>
+        <field name="driver_license_number">KHI-HTV-98241</field>
+        <field name="driver_license_type">htv</field>
+        <field name="driver_license_expiry">2028-12-31</field>
+        <field name="phone">+92 300 1234567</field>
+        <field name="street">Shah Faisal Colony</field>
+        <field name="city">Karachi</field>
+        <field name="country_id" ref="base.pk"/>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+
+    <record id="partner_driver_tariq" model="res.partner">
+        <field name="name">Tariq Baloch</field>
+        <field name="is_driver">True</field>
+        <field name="driver_license_number">KHI-PSV-45129</field>
+        <field name="driver_license_type">psv</field>
+        <field name="driver_license_expiry">2027-08-15</field>
+        <field name="phone">+92 333 7654321</field>
+        <field name="street">Model Colony</field>
+        <field name="city">Karachi</field>
+        <field name="country_id" ref="base.pk"/>
+        <field name="company_id" ref="company_paklink"/>
+    </record>
+</odoo>

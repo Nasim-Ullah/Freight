@@ -19,7 +19,7 @@
                             <page string="Vendor Lines">
                                 <field name="line_ids">
                                     <list editable="bottom">
-                                        <field name="vendor_id"/>
+                                        <field name="vendor_id" domain="[('company_id', '=', parent.company_id)]"/>
                                         <field name="sale_price"/>
                                     </list>
                                 </field>

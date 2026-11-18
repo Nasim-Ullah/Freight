@@ -43,18 +43,18 @@
 
                     <group>
                         <group>
-                            <field name="shipper_id" required="1"/>
-                            <field name="consignee_id"/>
+                            <field name="shipper_id" required="1" domain="[('company_id', '=', company_id), ('is_company', '=', True)]"/>
+                            <field name="consignee_id" domain="[('company_id', '=', company_id), ('is_company', '=', True)]"/>
                             <field name="order_date" required="1"/>
-                            <field name="loading_port_id" required="1" domain="[('is_air', '=', True)] if transport == 'air' else [('is_water', '=', True)] if transport == 'water' else [('is_land', '=', True)] if transport == 'land' else []"/>
-                            <field name="agent_id" required="1"/>
+                            <field name="loading_port_id" required="1" domain="[('company_id', '=', company_id)] + ([('is_air', '=', True)] if transport == 'air' else [('is_water', '=', True)] if transport == 'water' else [('is_land', '=', True)] if transport == 'land' else [])"/>
+                            <field name="agent_id" required="1" domain="[('company_id', '=', company_id)]"/>
                         </group>
                         <group>
                             <field name="shipping_type" required="1"/>
                             <field name="transport" required="1"/>
                             <field name="land_type" invisible="transport != 'land'" required="transport == 'land'"/>
                             <field name="water_type" invisible="transport != 'water'" required="transport == 'water'"/>
-                            <field name="discharge_port_id" required="1" domain="[('is_air', '=', True)] if transport == 'air' else [('is_water', '=', True)] if transport == 'water' else [('is_land', '=', True)] if transport == 'land' else []"/>
+                            <field name="discharge_port_id" required="1" domain="[('company_id', '=', company_id)] + ([('is_air', '=', True)] if transport == 'air' else [('is_water', '=', True)] if transport == 'water' else [('is_land', '=', True)] if transport == 'land' else [])"/>
                             <field name="expected_date"/>
                             <field name="company_id" groups="base.group_multi_company"/>
                         </group>
@@ -64,7 +64,7 @@
                         <page string="Order">
                             <field name="cargo_line_ids">
                                 <list editable="bottom">
-                                    <field name="container_id"/>
+                                    <field name="container_id" domain="[('company_id', '=', parent.company_id)]"/>
                                     <field name="product_id"/>
                                     <field name="billing_on"/>
                                     <field name="pricing"/>
@@ -86,9 +86,9 @@
                         <page string="Routes">
                             <field name="route_line_ids">
                                 <list editable="bottom">
-                                    <field name="route_id"/>
-                                    <field name="source_port_id"/>
-                                    <field name="destination_port_id"/>
+                                    <field name="route_id" domain="[('company_id', '=', parent.company_id)]"/>
+                                    <field name="source_port_id" domain="[('company_id', '=', parent.company_id)]"/>
+                                    <field name="destination_port_id" domain="[('company_id', '=', parent.company_id)]"/>
                                     <field name="transport"/>
                                     <field name="sale_price"/>
                                 </list>
@@ -102,8 +102,8 @@
                         <page string="Services">
                             <field name="service_line_ids">
                                 <list editable="bottom">
-                                    <field name="service_id"/>
-                                    <field name="vendor_id"/>
+                                    <field name="service_id" domain="[('company_id', '=', parent.company_id)]"/>
+                                    <field name="vendor_id" domain="[('company_id', '=', parent.company_id)]"/>
                                     <field name="quantity"/>
                                     <field name="sale"/>
                                     <field name="total_sale"/>
@@ -118,8 +118,8 @@
                         <page string="Track">
                             <field name="track_line_ids">
                                 <list editable="bottom">
-                                    <field name="source_port_id"/>
-                                    <field name="destination_port_id"/>
+                                    <field name="source_port_id" domain="[('company_id', '=', parent.company_id)]"/>
+                                    <field name="destination_port_id" domain="[('company_id', '=', parent.company_id)]"/>
                                     <field name="transport"/>
                                     <field name="date"/>
                                     <field name="received_delivered"/>
